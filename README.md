@@ -67,11 +67,10 @@ Used for:
 
 ## References
 Put all the reference links where you have used for your project<br>
-https://developer.spotify.com/documentation/web-api
-https://rapidapi.com/Glavier/api/genius-song-lyrics1
-https://github.com/thelinmichael/spotify-web-api-node
-https://axios-http.com/docs/intro
-<br>
+https://developer.spotify.com/documentation/web-api <br>
+https://rapidapi.com/Glavier/api/genius-song-lyrics1 <br>
+https://github.com/thelinmichael/spotify-web-api-node <br>
+https://axios-http.com/docs/intro <br>
 <br>
 :warning: This repository includes gitignore file which will not commit certain files or folders (especially node_modules folder) for a node.js project into the repository.  
 **Please do not remove the .gitignore file as it will help to minimize the size of the project in the repository.** 
