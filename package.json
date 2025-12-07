@@ -1,0 +1,23 @@
+{
+  "name": "edrick_project1",
+  "version": "1.0.0",
+  "description": "Name: Edrick <br>\r Module Group: L1 <br>",
+  "homepage": "https://github.com/Random-Dummy/Edrick_Project1#readme",
+  "bugs": {
+    "url": "https://github.com/Random-Dummy/Edrick_Project1/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Random-Dummy/Edrick_Project1.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "archivedplaylist.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
