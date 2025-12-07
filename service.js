@@ -15,6 +15,7 @@ let db = {
             throw new Error("Error connecting to Mongo DB");
         }
     },
+    // User CRUD
     async updateToken(id, token) {
         try {
             await user.findByIdAndUpdate(id, { token: token });
@@ -54,6 +55,20 @@ let db = {
             throw new Error("Error at the server. Please try again later.");
         }
     },
+    async addUser(username, email, password) {
+        try {
+            await user.create({
+                username: username,
+                email: email,
+                password: password,
+                token: null
+            });
+            return "User added successfully";
+        } catch (e) {
+            console.log(e.message);
+            throw new Error("Error adding user");
+        }
+    },
 
     // Song CRUD
     async addSong(title, artist, album, previewUrl, duration) {
@@ -71,6 +86,72 @@ let db = {
             throw new Error("Error adding song");
         }
     },
+    //Check
+    async getSong(id) {
+        try {
+            return await songs.findById(id);
+        } catch (e) {
+            throw new Error("Error retrieving song");
+        }
+    },
+
+    async updateSong(id, data) {
+        try {
+            await songs.findByIdAndUpdate(id, data);
+            return "Song updated successfully";
+        } catch (e) {
+            throw new Error("Error updating song");
+        }
+    },
+
+    async deleteSong(id) {
+        try {
+            await songs.findByIdAndDelete(id);
+            return "Song deleted successfully";
+        } catch (e) {
+            throw new Error("Error deleting song");
+        }
+    },
+
+    // Lyric CRUD
+    async addLyrics(songId, lyrics) {
+        try {
+            await lyric.create({
+                song: songId,
+                lyrics: lyrics
+            });
+            return "Lyrics added successfully";
+        } catch (e) {
+            console.log(e.message);
+            throw new Error("Error adding lyrics");
+        }
+    },
+    async getLyrics(songId) {
+        try {
+            return await lyric.findOne({ song: songId }).populate("song");
+        } catch (e) {
+            throw new Error("Error retrieving lyrics");
+        }
+    },
+
+    async updateLyrics(id, lyricsText) {
+        try {
+            await lyric.findByIdAndUpdate(id, { lyrics: lyricsText });
+            return "Lyrics updated successfully";
+        } catch (e) {
+            throw new Error("Error updating lyrics");
+        }
+    },
+
+    async deleteLyrics(id) {
+        try {
+            await lyric.findByIdAndDelete(id);
+            return "Lyrics deleted successfully";
+        } catch (e) {
+            throw new Error("Error deleting lyrics");
+        }
+    },
+
     // Playlist CRUD
     async addPlaylist(name, description, tracks, creator) {
         try {
@@ -86,32 +167,51 @@ let db = {
             throw new Error("Error adding playlist");
         }
     },
-    // Lyric CRUD
-    async addLyrics(songId, lyrics) {
+    // Get Single Playlist
+    async getPlaylist(id) {
         try {
-            await lyric.create({
-                song: songId,
-                lyrics: lyrics
-            });
-            return "Lyrics added successfully";
+            return await playlist.findById(id).populate("tracks");
         } catch (e) {
             console.log(e.message);
-            throw new Error("Error adding lyrics");
+            throw new Error("Error retrieving playlist");
         }
     },
-    // User CRUD
-    async addUser(username, email, password) {
+
+    // Update Playlist (only creator)
+    async updatePlaylist(id, userId, data) {
         try {
-            await user.create({
-                username: username,
-                email: email,
-                password: password,
-                token: null
-            });
-            return "User added successfully";
+            let pl = await playlist.findById(id);
+            if (!pl) throw new Error("Playlist not found");
+
+            // Permission check
+            if (pl.creator.toString() !== userId.toString()) {
+                throw new Error("Unauthorized: You are not the creator of this playlist");
+            }
+
+            await playlist.findByIdAndUpdate(id, data);
+            return "Playlist updated successfully";
         } catch (e) {
             console.log(e.message);
-            throw new Error("Error adding user");
+            throw new Error(e.message);
+        }
+    },
+
+    // Delete Playlist (only creator)
+    async deletePlaylist(id, userId) {
+        try {
+            let pl = await playlist.findById(id);
+            if (!pl) throw new Error("Playlist not found");
+
+            // Permission check
+            if (pl.creator.toString() !== userId.toString()) {
+                throw new Error("Unauthorized: You are not the creator of this playlist");
+            }
+
+            await playlist.findByIdAndDelete(id);
+            return "Playlist deleted successfully";
+        } catch (e) {
+            console.log(e.message);
+            throw new Error(e.message);
         }
     },
 }

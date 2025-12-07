@@ -17,17 +17,13 @@ router.use(express.urlencoded({
 
 // User Auth & Account Management
 function authenticationCheck(req,res,next) {
-    //check if query token is in the url
     let token = req.query.token;
     if(!token) {
         res.status(401).json({"message":"No tokens are provided."});
     } else {
         db.checkToken(token)
         .then(function(response){
-            //Matched token in the db, proceed with the request
             if(response) {
-                //response = organizer who is logged in.
-                // store the organizer's id in local memory to be used in the route handler
                 res.locals.userID = response._id;
                 next();
             } else {
@@ -101,5 +97,123 @@ router.post('/api/song', function (req, res) {
         res.status(500).json({"message":error.message});
     });
 })
+
+//Check here
+// Get all songs
+router.get('/api/songs', async (req, res) => {
+    try {
+        let results = await db.getAllSongs();
+        res.status(200).json(results);
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+// get via ID
+router.get('/api/song/:id', async (req, res) => {
+    try {
+        let result = await db.getSong(req.params.id);
+        res.status(200).json(result);
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+// update via ID
+router.put('/api/song/:id', async (req, res) => {
+    try {
+        let result = await db.updateSong(req.params.id, req.body);
+        res.status(200).json({ message: result });
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+// DELETE Song
+router.delete('/api/song/:id', async (req, res) => {
+    try {
+        let result = await db.deleteSong(req.params.id);
+        res.status(200).json({ message: result });
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+
+// Lyrics CRUD
+// CREATE Lyrics
+router.post('/api/lyrics', async (req, res) => {
+    try {
+        let result = await db.addLyrics(req.body.song, req.body.lyrics);
+        res.status(200).json({ message: result });
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+
+// READ Lyrics by Song
+router.get('/api/lyrics/:songId', async (req, res) => {
+    try {
+        let result = await db.getLyrics(req.params.songId);
+        res.status(200).json(result);
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+
+// UPDATE Lyrics
+router.put('/api/lyrics/:id', async (req, res) => {
+    try {
+        let result = await db.updateLyrics(req.params.id, req.body.lyrics);
+        res.status(200).json({ message: result });
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+
+// DELETE Lyrics
+router.delete('/api/lyrics/:id', async (req, res) => {
+    try {
+        let result = await db.deleteLyrics(req.params.id);
+        res.status(200).json({ message: result });
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+
+// PLAYLIST CRUD (Protected)
+router.post('/api/playlist', authenticationCheck, async function(req, res) {
+    let data = req.body;
+    let userId = res.locals.userID;
+
+    db.addPlaylist(data.name, data.description, data.tracks, userId)
+    .then(response => res.status(200).json({ message: response }))
+    .catch(error => res.status(500).json({ message: error.message }));
+});
+
+router.get('/api/playlist/:id', async function(req, res) {
+    db.getPlaylist(req.params.id)
+    .then(response => {
+        if (!response) res.status(404).json({ message: "Playlist not found" });
+        else res.status(200).json(response);
+    })
+    .catch(error => res.status(500).json({ message: error.message }));
+});
+
+// UPDATE PLAYLIST (only creator)
+router.put('/api/playlist/:id', authenticationCheck, async function(req, res) {
+    let playlistId = req.params.id;
+    let userId = res.locals.userID;
+
+    db.updatePlaylist(playlistId, userId, req.body)
+    .then(response => res.status(200).json({ message: response }))
+    .catch(error => res.status(500).json({ message: error.message }));
+});
+
+// DELETE PLAYLIST (only creator)
+router.delete('/api/playlist/:id', authenticationCheck, async function(req, res) {
+    let playlistId = req.params.id;
+    let userId = res.locals.userID;
+
+    db.deletePlaylist(playlistId, userId)
+    .then(response => res.status(200).json({ message: response }))
+    .catch(error => res.status(500).json({ message: error.message }));
+});
 
 module.exports = router;
