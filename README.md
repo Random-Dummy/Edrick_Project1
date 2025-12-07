@@ -1,7 +1,7 @@
 # WAD Project
-Name:  <br>
-Module Group: <br>
-<br> 
+Name: Edrick <br>
+Module Group: L1 <br>
+---
 ## Project Title
 Please give a meaningful name for your application. <br>
 <br> 
@@ -12,7 +12,7 @@ Why do you want to build this web application? <br>
 Write down clearly what are the things the user can perform with your web application.<br>
 <br> 
 ## External API(s) that you would like to use
-Describe which external APIs that you would like to use and how you would use them. Put the reference links where you found the APIs.<br>
+### **1. Spotify Web API**
 <br> 
 ## Additional node modules that you would like to use
 Describe any node modules that you would like to use or have used in the current stage of the project.<br>
