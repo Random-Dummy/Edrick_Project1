@@ -15,6 +15,7 @@ router.use(express.urlencoded({
     extended: true
 }));
 
+// User Auth & Account Management
 function authenticationCheck(req,res,next) {
     //check if query token is in the url
     let token = req.query.token;
@@ -27,7 +28,7 @@ function authenticationCheck(req,res,next) {
             if(response) {
                 //response = organizer who is logged in.
                 // store the organizer's id in local memory to be used in the route handler
-                res.locals.organizerId = response._id;
+                res.locals.userID = response._id;
                 next();
             } else {
                 res.status(401).json({"message":"Invalid token provided."});
@@ -43,7 +44,7 @@ router.get('/api/organizer/logout',authenticationCheck);
 
 router.post('/api/user/login',function(req,res){
     let data = req.body;
-    db.getOrganizer(data.username,data.password)
+    db.getUser(data.username,data.password)
     .then(function(response){
         if(!response) {
             res.status(401).json({"message":"Login unsuccessful. Please try again later."});
@@ -65,9 +66,9 @@ router.post('/api/user/login',function(req,res){
     })
 })
 
-router.get('/api/user/logout',function(req,res){
+router.get('/api/user/logout', authenticationCheck,function(req,res){
     //retrieve the id that was stored earlier in the middleware.
-    let id = res.locals.organizerId;
+    let id = res.locals.userID;
     db.removeToken(id)
     .then(function(response){
         res.status(200).json({'message':'Logout successful'});
@@ -77,6 +78,19 @@ router.get('/api/user/logout',function(req,res){
     })
 })
 
+// User CRUD
+router.post('/api/user/register', function (req, res) {
+    let data = req.body;
+    db.addUser(data.username, data.email, data.password)
+    .then(function(response){
+        res.status(200).json({"message":response});
+    })
+    .catch(function(error){
+        res.status(500).json({"message":error.message});
+    });
+})
+
+// Song CRUD
 router.post('/api/song', function (req, res) {
     let data = req.body;
     db.addSong(data.title,  data.artist, data.album, data.previewUrl,  data.duration)

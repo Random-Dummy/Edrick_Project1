@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-const Songs = require('./models/song.js');
-const Playlists = require('./models/playlist.js');
-const Lyrics = require('./models/lyric.js');
-const Users = require('./models/user.js');
+const songs = require('./models/song.js');
+const playlist = require('./models/playlist.js');
+const lyric = require('./models/lyric.js');
+const user = require('./models/user.js');
 
 let db = {
     async connect() {
@@ -10,98 +10,110 @@ let db = {
             await mongoose.connect('mongodb://127.0.0.1:27017/Projekt1');
             return "Connected to Mongo DB";
         }
-        catch(e) {
+        catch (e) {
             console.log(e.message);
             throw new Error("Error connecting to Mongo DB");
         }
     },
-    async updateToken(id,token) {
+    async updateToken(id, token) {
         try {
-            await organizer.findByIdAndUpdate(id,{token:token});
+            await user.findByIdAndUpdate(id, { token: token });
             return;
         }
-        catch(e) {
+        catch (e) {
             console.log(e.message);
             throw new Error("Error at the server. Please try again later.");
         }
     },
     async checkToken(token) {
         try {
-            let result = await organizer.findOne({token:token});
+            let result = await user.findOne({ token: token });
             return result;
         }
-        catch(e) {
+        catch (e) {
             console.log(e.message);
             throw new Error("Error at the server. Please try again later.");
         }
     },
     async removeToken(id) {
         try {
-            await organizer.findByIdAndUpdate(id, {$unset: {token: 1}});
+            await user.findByIdAndUpdate(id, { $unset: { token: 1 } });
             return;
         }
-        catch(e) {
+        catch (e) {
+            console.log(e.message);
+            throw new Error("Error at the server. Please try again later.");
+        }
+    },
+    async getUser(username, password) {
+        try {
+            let result = await user.findOne({ username: username, password: password });
+            return result;
+        } catch (e) {
             console.log(e.message);
             throw new Error("Error at the server. Please try again later.");
         }
     },
 
-    // add crud operations below
+    // Song CRUD
     async addSong(title, artist, album, previewUrl, duration) {
-        try{
-            await Songs.create({
+        try {
+            await songs.create({
                 title: title,
-                artist: artist, 
+                artist: artist,
                 album: album,
                 previewUrl: previewUrl,
                 duration: duration
             });
             return "Song added successfully";
-        } catch(e) {
+        } catch (e) {
             console.log(e.message);
             throw new Error("Error adding song");
         }
     },
+    // Playlist CRUD
     async addPlaylist(name, description, tracks, creator) {
-        try{
-            await Playlists.create({
+        try {
+            await playlist.create({
                 name: name,
                 description: description,
                 tracks: tracks,
                 creator: creator
             });
             return "Playlist added successfully";
-        } catch(e) {
+        } catch (e) {
             console.log(e.message);
             throw new Error("Error adding playlist");
         }
     },
+    // Lyric CRUD
     async addLyrics(songId, lyrics) {
-        try{
-            await Lyrics.create({
+        try {
+            await lyric.create({
                 song: songId,
                 lyrics: lyrics
             });
             return "Lyrics added successfully";
-        } catch(e) {
+        } catch (e) {
             console.log(e.message);
             throw new Error("Error adding lyrics");
         }
     },
+    // User CRUD
     async addUser(username, email, password) {
-        try{
-            await Users.create({
+        try {
+            await user.create({
                 username: username,
                 email: email,
-                password: password
+                password: password,
+                token: null
             });
             return "User added successfully";
-        } catch(e) {
+        } catch (e) {
             console.log(e.message);
             throw new Error("Error adding user");
         }
     },
-
 }
 
 module.exports = db;
