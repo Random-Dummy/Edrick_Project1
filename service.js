@@ -7,7 +7,7 @@ const Users = require('./user.js');
 let db = {
     async connect() {
         try {
-            await mongoose.connect('mongodb://127.0.0.1:27017/eventManagementDB');
+            await mongoose.connect('mongodb://127.0.0.1:27017/Prokect1');
             return "Connected to Mongo DB";
         }
         catch(e) {
@@ -15,6 +15,7 @@ let db = {
             throw new Error("Error connecting to Mongo DB");
         }
     },
+    asy
 }
 
 module.exports = db;
