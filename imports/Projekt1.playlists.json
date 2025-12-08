@@ -62,4 +62,23 @@
     "6935be5f0ac9d799e9c4c438"
   ],
   "creator": "USER_ID_5"
+},
+{
+  "_id": {
+    "$oid": "6936789729dfa83cf7b981cf"
+  },
+  "name": "Random",
+  "description": "test2",
+  "tracks": [
+    {
+      "$oid": "69366e98179085ec6c3ccb73"
+    }
+  ],
+  "creator": {
+    "$oid": "6935be8d0ac9d799e9c4c444"
+  },
+  "createdAt": {
+    "$date": "2025-12-08T07:04:55.790Z"
+  },
+  "__v": 2
 }]

@@ -2,10 +2,10 @@
   "_id": {
     "$oid": "6935be8d0ac9d799e9c4c444"
   },
-  "username": "spyder",
-  "email": "spyder@example.com",
-  "password": "pass123",
-  "token": "token_aaa"
+  "username": "test1",
+  "email": "test@example.com",
+  "password": "test1",
+  "token": "9de007de470366c09244c481d93ffa30"
 },
 {
   "_id": {
