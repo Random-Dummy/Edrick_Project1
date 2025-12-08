@@ -35,14 +35,13 @@ Write down clearly what are the things the user can perform with your web applic
 ## API Routes
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/tracks` | GET | Retrieve all tracks |
-| `/tracks/:id` | GET | Retrieve track by ID |
-| `/tracks` | POST | Add a new track |
-| `/tracks/:id` | PUT | Update track details |
-| `/tracks/:id` | DELETE | Remove a track |
-| `/tracks/search` | GET | Search tracks via Spotify API |
-| `/lyrics/:trackId` | GET | Fetch lyrics for a track via Genius API |
-and more
+| `/songs` | GET | Retrieve all tracks |
+| `/song/:id` | GET | Retrieve track by ID |
+| `/song/add` | POST | Add a new track |
+| `/song/:id` | PUT | Update track details |
+| `/song/:id` | DELETE | Remove a track |
+| `/song/:id` | GET | Search songs via Spotify API |
+| `/lyrics/:songId` | GET | Fetch lyrics for a track via Genius API |
 
 > Note: User authentication is required for routes that modify data (POST, PUT, DELETE).
 
