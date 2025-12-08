@@ -42,10 +42,7 @@ Write down clearly what are the things the user can perform with your web applic
 | `/tracks/:id` | DELETE | Remove a track |
 | `/tracks/search` | GET | Search tracks via Spotify API |
 | `/lyrics/:trackId` | GET | Fetch lyrics for a track via Genius API |
-| `/favourites` | GET | View user’s favourite songs |
-| `/favourites` | POST | Add a track to favourites |
-| `/favourites/:id` | DELETE | Remove a track from favourites |
-| `/artists/:id` | GET | Retrieve artist details from Spotify |
+and more
 
 > Note: User authentication is required for routes that modify data (POST, PUT, DELETE).
 
