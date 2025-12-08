@@ -23,12 +23,11 @@ Write down clearly what are the things the user can perform with your web applic
   - Retrieve stored song
   - Update a song
   - Delete a song
-
+- **Search Songs** – Search tracks using Spotify API 
 ### Advanced Features
 - **User Playlist Management** - Control and manage your playlists via Spotify API
 - **Auto-store Song Metadata** – Store Spotify track details automatically in the database.
-  - Store Spotify song details automatically inside the database
-- **Search Tracks** – Search tracks using Spotify API  
+  - Store Spotify song details automatically inside the database 
 - **Lyrics Fetching** – Search and display song lyrics using Genius Lyrics API via RapidAPI.
 ---
 
