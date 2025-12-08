@@ -3,7 +3,7 @@ Name: Edrick <br>
 Module Group: L1 <br>
 
 ## Project Title
-Please give a meaningful name for your application.
+**Goblettos** - A Web Application that downloads your favourite songs and provides lyrics for them with Spotify inegration.
 <br> 
 ## Background
 Why do you want to build this web application? <br>
