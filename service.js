@@ -86,7 +86,13 @@ let db = {
             throw new Error("Error adding song");
         }
     },
-    //Check
+    async getAllSongs() {
+        try {
+            return await songs.find({});
+        } catch (e) {
+            throw new Error("Error retrieving songs");
+        }
+    },
     async getSong(id) {
         try {
             return await songs.findById(id);
