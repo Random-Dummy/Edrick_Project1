@@ -113,6 +113,22 @@ let db = {
         }
     },
 
+    async searchSongs(query) {
+        try {
+            let regex = new RegExp(query, "i");
+
+            return await songs.find({
+                $or: [
+                    { title: regex },
+                    { artist: regex },
+                    { album: regex }
+                ]
+            });
+        } catch (e) {
+            throw new Error("Error performing search");
+        }
+    },
+
     // Lyric CRUD
     async addLyrics(songId, lyrics) {
         try {

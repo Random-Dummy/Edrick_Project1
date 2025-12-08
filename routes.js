@@ -126,11 +126,25 @@ router.put('/api/song/:id', async (req, res) => {
         res.status(500).json({ message: e.message });
     }
 });
-// DELETE Song
+// delete Song
 router.delete('/api/song/:id', async (req, res) => {
     try {
         let result = await db.deleteSong(req.params.id);
         res.status(200).json({ message: result });
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+// Search Songs
+router.get('/api/search', async (req, res) => {
+    try {
+        let q = req.query.q;
+
+        if (!q) return res.status(400).json({ message: "Missing search query ?q=" });
+
+        let results = await db.searchSongs(q);
+        res.status(200).json(results);
+
     } catch (e) {
         res.status(500).json({ message: e.message });
     }
@@ -215,5 +229,21 @@ router.delete('/api/playlist/:id', authenticationCheck, async function(req, res)
     .then(response => res.status(200).json({ message: response }))
     .catch(error => res.status(500).json({ message: error.message }));
 });
+
+// Add song to playlist
+router.post('/api/playlist/:id/add-track', authenticationCheck, async (req, res) => {
+    try {
+        let playlistId = req.params.id;
+        let userId = res.locals.userID;
+        let songId = req.body.songId;
+
+        let result = await db.addTrackToPlaylist(playlistId, userId, songId);
+        res.status(200).json({ message: result });
+
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
+
 
 module.exports = router;
