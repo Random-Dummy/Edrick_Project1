@@ -230,6 +230,42 @@ let db = {
             throw new Error(e.message);
         }
     },
+    // Add song to playlist
+    async addTrackToPlaylist(id, userId, songId) {
+        try {
+            let pl = await playlist.findById(id);
+            if (!pl) throw new Error("Playlist not found");
+
+            if (pl.creator.toString() !== userId.toString())
+                throw new Error("Unauthorized: only creator can edit playlist");
+
+            if (!pl.tracks.includes(songId)) {
+                pl.tracks.push(songId);
+                await pl.save();
+            }
+
+            return "Track added to playlist";
+        } catch (e) {
+            throw new Error(e.message);
+        }
+    },
+    // Remove song from playlist
+    async removeTrackFromPlaylist(id, userId, songId) {
+        try {
+            let pl = await playlist.findById(id);
+            if (!pl) throw new Error("Playlist not found");
+
+            if (pl.creator.toString() !== userId.toString())
+                throw new Error("Unauthorized: only creator can edit playlist");
+
+            pl.tracks = pl.tracks.filter(t => t.toString() !== songId);
+            await pl.save();
+
+            return "Track removed from playlist";
+        } catch (e) {
+            throw new Error(e.message);
+        }
+    },
 }
 
 module.exports = db;

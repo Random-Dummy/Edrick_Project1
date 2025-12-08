@@ -87,7 +87,7 @@ router.post('/api/user/register', function (req, res) {
 })
 
 // Song CRUD
-router.post('/api/song', function (req, res) {
+router.post('/api/song/add', function (req, res) {
     let data = req.body;
     db.addSong(data.title,  data.artist, data.album, data.previewUrl,  data.duration)
     .then(function(response){
@@ -151,7 +151,7 @@ router.get('/api/search', async (req, res) => {
 });
 
 // Lyrics CRUD
-// CREATE Lyrics
+// create Lyrics
 router.post('/api/lyrics', async (req, res) => {
     try {
         let result = await db.addLyrics(req.body.song, req.body.lyrics);
@@ -161,7 +161,7 @@ router.post('/api/lyrics', async (req, res) => {
     }
 });
 
-// READ Lyrics by Song
+// read Lyrics by Song
 router.get('/api/lyrics/:songId', async (req, res) => {
     try {
         let result = await db.getLyrics(req.params.songId);
@@ -171,7 +171,7 @@ router.get('/api/lyrics/:songId', async (req, res) => {
     }
 });
 
-// UPDATE Lyrics
+// Update Lyrics
 router.put('/api/lyrics/:id', async (req, res) => {
     try {
         let result = await db.updateLyrics(req.params.id, req.body.lyrics);
@@ -181,7 +181,7 @@ router.put('/api/lyrics/:id', async (req, res) => {
     }
 });
 
-// DELETE Lyrics
+// Delete Lyrics
 router.delete('/api/lyrics/:id', async (req, res) => {
     try {
         let result = await db.deleteLyrics(req.params.id);
@@ -191,7 +191,7 @@ router.delete('/api/lyrics/:id', async (req, res) => {
     }
 });
 
-// PLAYLIST CRUD (Protected)
+// Playlist CRUD
 router.post('/api/playlist', authenticationCheck, async function(req, res) {
     let data = req.body;
     let userId = res.locals.userID;
@@ -201,6 +201,7 @@ router.post('/api/playlist', authenticationCheck, async function(req, res) {
     .catch(error => res.status(500).json({ message: error.message }));
 });
 
+// Get single playlist
 router.get('/api/playlist/:id', async function(req, res) {
     db.getPlaylist(req.params.id)
     .then(response => {
@@ -210,7 +211,7 @@ router.get('/api/playlist/:id', async function(req, res) {
     .catch(error => res.status(500).json({ message: error.message }));
 });
 
-// UPDATE PLAYLIST (only creator)
+// Update playlist (only creator)
 router.put('/api/playlist/:id', authenticationCheck, async function(req, res) {
     let playlistId = req.params.id;
     let userId = res.locals.userID;
@@ -220,7 +221,7 @@ router.put('/api/playlist/:id', authenticationCheck, async function(req, res) {
     .catch(error => res.status(500).json({ message: error.message }));
 });
 
-// DELETE PLAYLIST (only creator)
+// Delete PLAYLIST (only creator)
 router.delete('/api/playlist/:id', authenticationCheck, async function(req, res) {
     let playlistId = req.params.id;
     let userId = res.locals.userID;
@@ -245,5 +246,19 @@ router.post('/api/playlist/:id/add-track', authenticationCheck, async (req, res)
     }
 });
 
+// Remove song from playlist
+router.post('/api/playlist/:id/remove-track', authenticationCheck, async (req, res) => {
+    try {
+        let playlistId = req.params.id;
+        let userId = res.locals.userID;
+        let songId = req.body.songId;
+
+        let result = await db.removeTrackFromPlaylist(playlistId, userId, songId);
+        res.status(200).json({ message: result });
+
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+});
 
 module.exports = router;
