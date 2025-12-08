@@ -14,32 +14,47 @@ Gobletto allows you to manage your music from spotify, giving you the ability to
 ## Key Features
 Write down clearly what are the things the user can perform with your web application.<br>
 
+### Basic Features
 - **User Registration**
 - **User Login**
 - **User Logout**
-- **CRUD Operations for Tracks (Products)**
-  - Create a track entry  
-  - Retrieve stored tracks  
-  - Update a track  
-  - Delete a track  
-- **Search Tracks (using Spotify API)**
-- **Fetch Lyrics (Genius Lyrics API via RapidAPI)**
-- **User Favourite Songs Playlist**
-  - Add song to favourites  
-  - Remove from favourites  
-  - View favourites  
-- View artist details  
-- Auto-store song metadata from Spotify into DB
+- **CRUD Operations for Songs, Playlists, Lyrics**
+  - Create a song entry
+  - Retrieve stored song
+  - Update a song
+  - Delete a song
 
+### Advanced Features
+- **User Playlist Management** - Control and manage your playlists via Spotify API
+- **Auto-store Song Metadata** – Store Spotify track details automatically in the database.
+  - Store Spotify song details automatically inside the database
+- **Search Tracks** – Search tracks using Spotify API  
+- **Lyrics Fetching** – Search and display song lyrics using Genius Lyrics API via RapidAPI.
 ---
+
+## API Routes
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/tracks` | GET | Retrieve all tracks |
+| `/tracks/:id` | GET | Retrieve track by ID |
+| `/tracks` | POST | Add a new track |
+| `/tracks/:id` | PUT | Update track details |
+| `/tracks/:id` | DELETE | Remove a track |
+| `/tracks/search` | GET | Search tracks via Spotify API |
+| `/lyrics/:trackId` | GET | Fetch lyrics for a track via Genius API |
+| `/favourites` | GET | View user’s favourite songs |
+| `/favourites` | POST | Add a track to favourites |
+| `/favourites/:id` | DELETE | Remove a track from favourites |
+| `/artists/:id` | GET | Retrieve artist details from Spotify |
+
+> Note: User authentication is required for routes that modify data (POST, PUT, DELETE).
 
 ## External API(s) that you would like to use
 Describe which external APIs that you would like to use and how you would use them. Put the reference links where you found the APIs.
 
 ### **1. Spotify Web API**
 - Search songs, albums, and artists  
-- Fetch track details including duration, popularity, preview URL, etc.  
-- Retrieve artist details and metadata
+- Fetch track details including duration, preview URL, etc.  
 
 ---
 
@@ -50,7 +65,6 @@ Used to:
 - Enhance track detail pages with lyrics data  
 
 ## External Node Modules
-
 Describe any node modules that you would like to use or have used in the current stage of the project.
 
 ### **1. spotify-web-api-node**
