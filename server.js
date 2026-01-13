@@ -7,3 +7,4 @@ app.use('/',routes);
 app.listen(port, function () {
     console.log('Server started on port ' + port);
 });
+// app.use(express.static('views'));

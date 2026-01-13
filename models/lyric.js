@@ -1,12 +1,10 @@
 const mongoose = require('mongoose');
 
 const lyricsSchema = new mongoose.Schema({
-    song: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Songs',
-        required: true
-    },
-    lyrics: String,
+    spotifySongId: { type: String, required: true },
+    songName: String,
+    artistName: String,
+    lyrics: String
 });
 
 module.exports = mongoose.model('Lyrics', lyricsSchema);
