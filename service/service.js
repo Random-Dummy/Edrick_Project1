@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-const songs = require('./models/song.js');
-const playlist = require('./models/playlist.js');
-const lyric = require('./models/lyric.js');
-const user = require('./models/user.js');
+const songs = require('../models/song.js');
+const playlist = require('../models/playlist.js');
+const lyric = require('../models/lyric.js');
+const user = require('../models/user.js');
 
 let db = {
     async connect() {
