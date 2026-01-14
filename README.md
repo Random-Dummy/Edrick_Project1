@@ -1,6 +1,4 @@
 # WAD Project
-Name: Edrick <br>
-Module Group: L1 <br>
 
 ## Project Title
 **Goblettos** - A Web Application that downloads your favourite songs and provides lyrics for them with Spotify inegration.
