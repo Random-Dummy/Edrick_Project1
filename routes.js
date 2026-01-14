@@ -36,7 +36,7 @@ function authenticationCheck(req, res, next) {
     }
 }
 
-router.get('/api/user/logout', authenticationCheck);
+router.get('/api/organizer/logout', authenticationCheck);
 
 router.post('/api/user/login', function (req, res) {
     let data = req.body;
