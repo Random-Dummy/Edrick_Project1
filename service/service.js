@@ -15,7 +15,7 @@ let db = {
             throw new Error("Error connecting to Mongo DB");
         }
     },
-    // User CRUD
+    // User CRUD 
     async updateToken(id, token) {
         try {
             await user.findByIdAndUpdate(id, { token: token });
