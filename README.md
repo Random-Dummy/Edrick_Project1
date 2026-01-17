@@ -16,11 +16,6 @@ Write down clearly what are the things the user can perform with your web applic
 - **User Registration**
 - **User Login**
 - **User Logout**
-- **CRUD Operations for Songs, Playlists, Lyrics**
-  - Create a song entry
-  - Retrieve stored song
-  - Update a song
-  - Delete a song
 - **Search Songs** – Search tracks using Spotify API
 
 ### Advanced Features
@@ -31,17 +26,6 @@ Write down clearly what are the things the user can perform with your web applic
 ---
 
 ## API Routes
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/songs` | GET | Retrieve all tracks |
-| `/song/:id` | GET | Retrieve track by ID |
-| `/song/add` | POST | Add a new track |
-| `/song/:id` | PUT | Update track details |
-| `/song/:id` | DELETE | Remove a track |
-| `/song/:id` | GET | Search songs via Spotify API |
-| `/lyrics/:songId` | GET | Fetch lyrics for a track via Genius API |
-
-> Note: User authentication is required for routes that modify data (POST, PUT, DELETE).
 
 ## External API(s) that you would like to use
 Describe which external APIs that you would like to use and how you would use them. Put the reference links where you found the APIs.
