@@ -1,20 +1,22 @@
+const mongoose = require('mongoose');
+const user = require('./user.js');
 const playlistSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: String,
-  tracks: [{
-    spotifyTrackId: { type: String, required: true },
-    title: { type: String, required: true },
-    artist: { type: String, required: true },
-    duration: Number,
-    album: { type: String, default: function () { return this.title; } },
-    image: String
-  }],
   creator: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Users',
     required: true
   },
-  isPublic: { type: Boolean, default: false }
+  picture: { type: String, default: 'https://example.com/default-playlist-image.png' },
+  tracks: [{
+    spotifyTrackId: { type: String, required: true },
+    name: { type: String, required: true },
+    artist: { type: String, required: true },
+    duration: Number,
+    album: { type: String, default: function () { return this.name; } },
+    image: String
+  }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('Playlists', playlistSchema);

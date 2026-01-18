@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const user = require('../models/user.js');
 
-let userService = {
+const userService = {
     async createUser(username, email, password) {
         try {
             let existingUser = await user.findOne({ email: email });
@@ -52,7 +52,7 @@ let userService = {
             if(!deletedUser) {
                 throw new Error("User not found.");
             }
-            return { message: "User deleted successfully.", deletedUser: id };
+            return (`User with id ${id} deleted successfully.`);
         } catch (e) {
             console.error(e.message);
             throw new Error(`Error deleting user. ${id}`);
@@ -62,9 +62,6 @@ let userService = {
     async userLogin(email, password) {
         try {
             let result = await user.findOne({ email: email, password: password });
-            if (!result) {
-                throw new Error("Invalid email or password.");
-            }
             return result;
         } catch (e) {
             console.error(e.message);
@@ -94,7 +91,8 @@ let userService = {
     },
     async removeToken(id) {
         try {
-            await user.findByIdAndUpdate(id, {$unset: {token: ""}});
+            let result = await user.findByIdAndUpdate(id, {$unset: {token: 1}});
+            if(!result) { throw new Error("User not found."); }
             return;
         }
         catch(e) {
