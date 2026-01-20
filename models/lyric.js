@@ -4,7 +4,7 @@ const lyricsSchema = new mongoose.Schema({
   spotifyTrackId: { type: String, required: true, unique: true },
   songName: String,
   artistName: String,
-  lyrics: { type: String, required: true },
+  lyrics: String,
 }, { timestamps: true });
 
 module.exports = mongoose.model('Lyrics', lyricsSchema);
