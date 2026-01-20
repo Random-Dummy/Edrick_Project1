@@ -69,3 +69,15 @@ router.post('/api/user/register', function (req, res) {
             res.status(500).json({ "message": error.message });
         });
 })
+
+router.put('/api/user/update', authenticationCheck, function (req, res) {
+    let id = res.locals.userID;
+    let data = req.body;
+    db.updateUser(id, data)
+        .then(function (response) {
+            res.status(200).json({ "message": response });
+        })
+        .catch(function (error) {
+            res.status(500).json({ "message": error.message });
+        });
+})
