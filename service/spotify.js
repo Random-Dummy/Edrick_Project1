@@ -76,6 +76,27 @@ const spotifyService = {
       console.error('Spotify API Error:', error.message);
       return null;
     }
+  },
+
+  async getTrackDetails(id) {
+    try {
+      const response = await spotifyApi.getTrack(id);
+      const song = response.body;
+      
+      return {
+        spotifyTrackId: song.id,
+        name: song.name,
+        artist: song.artists.map(function (artist) {
+          return artist.name;
+        }).join(', '),
+        album: song.album.name,
+        durationMs: song.duration_ms,
+        albumImage: song.album.images[0] ? song.album.images[0].url : null
+      };
+    } catch (error) {
+      console.error('Spotify API Error:', error.message);
+      return null;
+    }
   }
 };
 

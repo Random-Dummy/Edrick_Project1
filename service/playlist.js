@@ -18,4 +18,15 @@ let playlistService = {
         }
     },
     
+    async getPlaylist(id) {
+        try {
+            let playlist = await playlist.findById(id);
+            return playlist;
+        } catch (e) {
+            console.log(e.message);
+            throw new Error(`Error getting playlist ${id}: ${e.message}`);
+        }
+    },
+
+    
 }
