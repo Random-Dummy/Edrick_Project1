@@ -33,9 +33,9 @@ const userService = {
         }
     },
 
-    async updateUser(id, updateData) {
+    async updateUser(id, data) {
         try {
-            let updatedUser = await user.findByIdAndUpdate(id, updateData, { new: true });
+            let updatedUser = await user.findByIdAndUpdate(id, data, { new: true });
             if(!updatedUser) {
                 throw new Error("User not found.");
             }
