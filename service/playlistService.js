@@ -15,7 +15,8 @@ let playlistService = {
 
     async deletePlaylist(playlistId, userId) {
         try {
-            const deletedPlaylist = await playlist.findOneAndDelete({ _id: playlistId, user: userId });
+            // FIXED: Changed user to creator to match schema
+            const deletedPlaylist = await playlist.findOneAndDelete({ _id: playlistId, creator: userId });
             if (!deletedPlaylist) {
                 throw new Error("Playlist not found or no permission to access it");
             }
@@ -28,7 +29,8 @@ let playlistService = {
 
     async updatePlaylist(playlistId, userId, data) {
         try {
-            const findPlaylist = await playlist.findOne({ _id: playlistId, user: userId });
+            // FIXED: Changed user to creator to match schema
+            const findPlaylist = await playlist.findOne({ _id: playlistId, creator: userId });
             if (!findPlaylist) { throw new Error("Playlist not found or no permission to access it"); }
             let result = await playlist.findByIdAndUpdate(playlistId, data, { new: true });
             if (!result) { throw new Error("Update failed"); }
@@ -41,7 +43,8 @@ let playlistService = {
 
     async getPlaylist(userId) {
         try {
-            const playlists = await playlist.find({ user: userId });
+            // FIXED: Changed user to creator to match schema
+            const playlists = await playlist.find({ creator: userId });
             return playlists;
         } catch (error) {
             console.error("Error retrieving playlists:", error.message);
@@ -79,4 +82,5 @@ let playlistService = {
         }
     },
 }
+
 module.exports = playlistService;

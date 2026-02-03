@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const likedSongs = require('../models/likedsongs.js');
+const likedSongs = require('../models/likedsong.js');
 const spotifyService = require('./spotifyservice.js');
 const lyricService = require('./lyricService.js');
 
