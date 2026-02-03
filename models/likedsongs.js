@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const likedSongsSchema = new mongoose.Schema({
-     tracks: [{
+     songs: [{
         spotifyTrackId: { type: String, required: true },
         name: { type: String, required: true },
         artist: { type: String, required: true },

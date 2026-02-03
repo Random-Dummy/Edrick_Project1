@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const playlistSchema = new mongoose.Schema({
     name: { type: String, required: true },
     creator: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },
-    songs: [{
+    tracks: [{
         spotifyTrackId: { type: String, required: true },
         name: { type: String, required: true },
         artist: { type: String, required: true },
@@ -11,7 +11,7 @@ const playlistSchema = new mongoose.Schema({
         durationMs: Number,
         albumImage: String 
     }],
-    picture,
+    picture: String,
 }, { timestamps: true });
 
 module.exports = mongoose.model("Playlists", playlistSchema);
