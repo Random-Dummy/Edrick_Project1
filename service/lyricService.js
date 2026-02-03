@@ -1,7 +1,7 @@
 const lyrics = require('../models/lyrics.js');
 const axios = require('axios');
 const cheerio = require('cheerio');
-require('dotenv').config();
+require('dotenv').config({ path: './config.env' });
 
 const lyricsService = {
     /**

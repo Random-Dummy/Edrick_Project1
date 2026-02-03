@@ -4,6 +4,9 @@ const db = require("./service/dbservice.js");
 const crypto = require('crypto');
 const userService = require('./service/userService.js');
 const playlistService = require('./service/playlistService.js');
+const likedSongService = require('./service/likedSongService.js');
+const lyricService = require('./service/lyricService.js');
+const spotifyService = require('./service/spotifyService.js');
 
 db.connect()
 .then(function(response){
@@ -194,5 +197,191 @@ router.delete('/playlists/:playlistId/tracks/:spotifyTrackId', authenticationChe
 });
 
 // Liked Songs stuff ===============================================================================================================
+
+// Add song to liked songs
+router.post('/liked-songs', authenticationCheck, async function(req, res) {
+    let userId = res.locals.userId;
+    let { spotifyTrackId } = req.body;
+    
+    if (!spotifyTrackId) {
+        return res.status(400).json({ "message": "spotifyTrackId is required" });
+    }
+    
+    likedSongService.addLikedSong(userId, spotifyTrackId)
+    .then(function(response) {
+        if (response.success) {
+            res.status(200).json(response);
+        } else {
+            res.status(400).json(response);
+        }
+    })
+    .catch(function(error) {
+        console.error("Error adding liked song:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
+
+// Remove song from liked songs
+router.delete('/liked-songs/:spotifyTrackId', authenticationCheck, async function(req, res) {
+    let userId = res.locals.userId;
+    let spotifyTrackId = req.params.spotifyTrackId;
+    
+    likedSongService.removeLikedSong(userId, spotifyTrackId)
+    .then(function(response) {
+        if (response.success) {
+            res.status(200).json(response);
+        } else {
+            res.status(400).json(response);
+        }
+    })
+    .catch(function(error) {
+        console.error("Error removing liked song:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
+
+// Get liked songs with lyrics
+router.get('/liked-songs/with-lyrics', authenticationCheck, async function(req, res) {
+    let userId = res.locals.userId;
+    
+    likedSongService.getLikedSongsWithLyrics(userId)
+    .then(function(response) {
+        if (response.success) {
+            res.status(200).json(response);
+        } else {
+            res.status(404).json(response);
+        }
+    })
+    .catch(function(error) {
+        console.error("Error getting liked songs with lyrics:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
+
+// Lyrics stuff ===============================================================================================================
+
+// Get lyrics for a specific track
+router.get('/lyrics/:spotifyTrackId', authenticationCheck, async function(req, res) {
+    let spotifyTrackId = req.params.spotifyTrackId;
+    let { songName, artist } = req.query; // Optional query parameters
+    
+    lyricService.getLyrics(spotifyTrackId, songName, artist)
+    .then(function(response) {
+        if (response.success) {
+            res.status(200).json(response);
+        } else {
+            res.status(404).json(response);
+        }
+    })
+    .catch(function(error) {
+        console.error("Error getting lyrics:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
+
+// Batch get lyrics for multiple tracks
+router.post('/lyrics/batch', authenticationCheck, async function(req, res) {
+    let { tracks } = req.body; // Array of track objects
+    
+    if (!tracks || !Array.isArray(tracks)) {
+        return res.status(400).json({ "message": "tracks array is required" });
+    }
+    
+    lyricService.batchGetLyrics(tracks)
+    .then(function(results) {
+        res.status(200).json({ 
+            success: true, 
+            results: results 
+        });
+    })
+    .catch(function(error) {
+        console.error("Error batch getting lyrics:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
+
+// Search lyrics
+router.get('/lyrics/search/:query', authenticationCheck, async function(req, res) {
+    let query = req.params.query;
+    
+    if (!query || query.trim().length < 2) {
+        return res.status(400).json({ "message": "Search query must be at least 2 characters" });
+    }
+    
+    lyricService.searchLyrics(query)
+    .then(function(response) {
+        res.status(200).json(response);
+    })
+    .catch(function(error) {
+        console.error("Error searching lyrics:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
+
+// Delete cached lyrics (admin/utility)
+router.delete('/lyrics/cache/:spotifyTrackId', authenticationCheck, async function(req, res) {
+    let spotifyTrackId = req.params.spotifyTrackId;
+    
+    lyricService.deleteCachedLyrics(spotifyTrackId)
+    .then(function(response) {
+        res.status(200).json(response);
+    })
+    .catch(function(error) {
+        console.error("Error deleting cached lyrics:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
+
+// Get Genius API status (admin/utility)
+router.get('/lyrics/genius-status', authenticationCheck, async function(req, res) {
+    lyricService.getGeniusStatus()
+    .then(function(response) {
+        res.status(200).json(response);
+    })
+    .catch(function(error) {
+        console.error("Error getting Genius status:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
+
+// Spotify stuff ===============================================================================================================
+
+router.get('/spotify/search', authenticationCheck, async function(req, res) {
+    let { query, limit } = req.query;
+    if (!query) {
+        return res.status(400).json({ "message": "Search query is required" });
+    }
+    spotifyService.searchTracks(query, limit || 20)
+    .then(function(response) {
+        res.status(200).json(response);
+    })
+    .catch(function(error) {
+        console.error("Error searching Spotify:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
+
+// Get track details from Spotify
+router.get('/spotify/track/:trackId', authenticationCheck, async function(req, res) {
+    let trackId = req.params.trackId;
+    spotifyService.getTrackDetails(trackId)
+    .then(function(trackDetails) {
+        if (trackDetails) {
+            res.status(200).json({ 
+                success: true, 
+                track: trackDetails 
+            });
+        } else {
+            res.status(404).json({ 
+                success: false, 
+                message: "Track not found on Spotify" 
+            });
+        }
+    })
+    .catch(function(error) {
+        console.error("Error getting track details:", error.message);
+        res.status(500).json({ "message": error.message });
+    });
+});
 
 module.exports = router;
