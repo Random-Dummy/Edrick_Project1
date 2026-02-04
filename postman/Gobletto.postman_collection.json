@@ -1,0 +1,682 @@
+{
+  "info": {
+    "_postman_id": "7036267b-f65c-47eb-9583-299c2f9cf352",
+    "name": "Gobletto",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49963449",
+    "_collection_link": "https://go.postman.co/collection/49963449-7036267b-f65c-47eb-9583-299c2f9cf352?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Add User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "test2",
+                  "type": "text",
+                  "uuid": "040e3955-891b-4f03-97d6-86e0ffb78f7b"
+                },
+                {
+                  "key": "email",
+                  "value": "Random2",
+                  "type": "text",
+                  "uuid": "c51cc2e0-e8cc-4ff3-a370-6600ab19352d"
+                },
+                {
+                  "key": "password",
+                  "value": "test2",
+                  "type": "text",
+                  "uuid": "95e008cf-caa5-4f81-a26c-25a0cde0dfaa"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email",
+                  "value": "Random1",
+                  "type": "text",
+                  "uuid": "6097fc0f-f296-4c7f-93cb-71c6e1e325ef"
+                },
+                {
+                  "key": "password",
+                  "value": "test1",
+                  "type": "text",
+                  "uuid": "dc9fb7db-f5d7-4f28-a4e5-0c0df51669a2"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout User",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/logout?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "logout"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Playlists",
+      "item": [
+        {
+          "name": "Create Playlist",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "name",
+                  "value": "My Chill Mix",
+                  "type": "text",
+                  "uuid": "9d79b4a5-17f7-419c-ac04-7ab99916d288",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/playlists/create?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "playlists",
+                "create"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Playlists",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            },
+            "url": {
+              "raw": "{{baseUrl}}/playlists?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "playlists"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Playlist",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "name",
+                  "value": "Random",
+                  "type": "text",
+                  "uuid": "6fb330ce-0ddc-4357-b806-e7e9f7c965d5"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/playlists/:playlistId?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "playlists",
+                ":playlistId"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "playlistId",
+                  "value": "aaf4d218c00fa3be80e2fd0b691ffc82"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Playlist",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/playlists/:playlistId?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "playlists",
+                ":playlistId"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "playlistId",
+                  "value": "69822480ae286d0796a7e56d"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add song",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "spotifyTrackId",
+                  "value": "aaf4d218c00fa3be80e2fd0b691ffc82",
+                  "type": "text",
+                  "uuid": "053fe885-8411-4a63-804f-739df5964b7f"
+                },
+                {
+                  "key": "artist",
+                  "value": "ReoNa",
+                  "type": "text",
+                  "uuid": "0b12531a-08a3-4260-bcbc-313789437466"
+                },
+                {
+                  "key": "name",
+                  "value": "Untitled World",
+                  "type": "text",
+                  "uuid": "7511495c-d8e3-4cea-9be2-cd84f87d7d21"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/playlists/:playlistId/tracks?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "playlists",
+                ":playlistId",
+                "tracks"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "playlistId",
+                  "value": "698226928e6f4b0d0ca5eaff"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete song",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "spotifyTrackId",
+                  "value": "aaf4d218c00fa3be80e2fd0b691ffc82",
+                  "type": "text",
+                  "uuid": "053fe885-8411-4a63-804f-739df5964b7f"
+                },
+                {
+                  "key": "artist",
+                  "value": "ReoNa",
+                  "type": "text",
+                  "uuid": "0b12531a-08a3-4260-bcbc-313789437466"
+                },
+                {
+                  "key": "name",
+                  "value": "Untitled World",
+                  "type": "text",
+                  "uuid": "7511495c-d8e3-4cea-9be2-cd84f87d7d21"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/playlists/:playlistId/tracks/:spotifyTrackId?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "playlists",
+                ":playlistId",
+                "tracks",
+                ":spotifyTrackId"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "playlistId",
+                  "value": "698226928e6f4b0d0ca5eaff"
+                },
+                {
+                  "key": "spotifyTrackId",
+                  "value": "aaf4d218c00fa3be80e2fd0b691ffc82"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Liked Songs",
+      "item": [
+        {
+          "name": "Add Song to Liked Songs",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "spotifyTrackId",
+                  "value": "5XGvJoSHGzJ1elgLZgviJK",
+                  "type": "text",
+                  "uuid": "1c987fd6-7cb3-45f7-8062-277603048423"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/liked-songs?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "liked-songs"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete song",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "spotifyTrackId",
+                  "value": "aaf4d218c00fa3be80e2fd0b691ffc82",
+                  "type": "text",
+                  "uuid": "053fe885-8411-4a63-804f-739df5964b7f"
+                },
+                {
+                  "key": "artist",
+                  "value": "ReoNa",
+                  "type": "text",
+                  "uuid": "0b12531a-08a3-4260-bcbc-313789437466"
+                },
+                {
+                  "key": "name",
+                  "value": "Untitled World",
+                  "type": "text",
+                  "uuid": "7511495c-d8e3-4cea-9be2-cd84f87d7d21"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/playlists/:playlistId/tracks/:spotifyTrackId?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "playlists",
+                ":playlistId",
+                "tracks",
+                ":spotifyTrackId"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "playlistId",
+                  "value": "698226928e6f4b0d0ca5eaff"
+                },
+                {
+                  "key": "spotifyTrackId",
+                  "value": "aaf4d218c00fa3be80e2fd0b691ffc82"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Liked Songs Lyrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/liked-songs/with-lyrics?token=({{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "liked-songs",
+                "with-lyrics"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "({{token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Lyrics",
+      "item": [
+        {
+          "name": "Get Lyrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lyrics/5XGvJoSHGzJ1elgLZgviJK?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lyrics",
+                "5XGvJoSHGzJ1elgLZgviJK"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search for Lyrics (Song details)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lyrics/search/:query?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lyrics",
+                "search",
+                ":query"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "query",
+                  "value": "ReoNa"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Lyrics",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lyrics/cache/5XGvJoSHGzJ1elgLZgviJK?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lyrics",
+                "cache",
+                "5XGvJoSHGzJ1elgLZgviJK"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Spotify",
+      "item": [
+        {
+          "name": "Search Spotify",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spotify/search?token={{token}}&query=Blinding Lights&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spotify",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "query",
+                  "value": "Blinding Lights"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Track Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spotify/track/:trackId?token={{token}}&query=Blinding Lights&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spotify",
+                "track",
+                ":trackId"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "query",
+                  "value": "Blinding Lights"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "trackId",
+                  "value": "0ozyv9adSVDED8Emhd8hfu"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "console.log('Base URL:', pm.variables.get('baseUrl'));"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
