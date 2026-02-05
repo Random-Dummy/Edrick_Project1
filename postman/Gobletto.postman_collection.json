@@ -440,14 +440,12 @@
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/playlists/:playlistId/tracks/:spotifyTrackId?token={{token}}",
+              "raw": "{{baseUrl}}/liked-songs/:spotifyTrackId?token={{token}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "playlists",
-                ":playlistId",
-                "tracks",
+                "liked-songs",
                 ":spotifyTrackId"
               ],
               "query": [
@@ -458,12 +456,8 @@
               ],
               "variable": [
                 {
-                  "key": "playlistId",
-                  "value": "698226928e6f4b0d0ca5eaff"
-                },
-                {
                   "key": "spotifyTrackId",
-                  "value": "aaf4d218c00fa3be80e2fd0b691ffc82"
+                  "value": "5XGvJoSHGzJ1elgLZgviJK"
                 }
               ]
             }
