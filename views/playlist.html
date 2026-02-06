@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="./css/global.css">
     <link rel="stylesheet" href="./css/playlist.css">
 </head>
+
 <body>
     <header class="navbar">
         <div class="logo">
@@ -25,6 +26,7 @@
             <a href="login.html" class="auth-btn">Logout</a>
         </nav>
     </header>
+
     <div class="container-fluid pt-4 pb-4">
         <div class="row" id="main-row">
             <div class="col-12 col-md-10 col-lg-8 mx-auto transition-all" id="playlist-column">
@@ -36,17 +38,18 @@
                 <!-- Playlist Header Section -->
                 <header class="bg-dark p-4 rounded-xl shadow-lg mb-4">
                     <div class="d-flex align-items-end">
-                        <!-- Album Image  -->
+                        <!-- Playlist Image -->
                         <div id="playlist-image" class="me-4 rounded shadow-sm" 
-                             style="width: 100px; height: 100px; background-size: cover; background-position: center; background-color: #333;"></div>
-
+                             style="width: 100px; height: 100px; background-size: cover; background-position: center; background-color: #333;">
+                        </div>
                         <div>
                             <p class="text-white-50 small fw-semibold text-uppercase mb-0">Playlist</p>
                             <h1 class="display-6 fw-bolder text-white" id="playlistname"></h1>
-                            <p></p> <!-- Spacer -->
                         </div>
                     </div>
+                    <p id="playlist-description" class="text-secondary small mt-2"></p>
                 </header>
+
                 <!-- Playlist Details Header -->
                 <div
                     class="row text-secondary small fw-bold text-uppercase border-bottom border-secondary-subtle pb-2 mb-3 mx-0">
@@ -55,34 +58,40 @@
                     <div class="col-4 d-none d-sm-block">Artist / Album</div>
                     <div class="col-1 text-end"><i class="bi bi-clock"></i></div>
                 </div>
+
                 <!-- Generate Song Containers -->
                 <div id="playlist-container" class="list-group list-group-flush">
                 </div>
             </div>
+
             <!-- Lyrics Sidebar -->
             <div class="col-lg-4 d-none" id="lyrics-column">
                 <div class="lyrics-sidebar shadow-lg">
                     <h3 class="mb-4 fw-bold">Lyrics</h3>
                     <div id="lyrics-content">
+                        <p class="lyrics-placeholder">Play a song to see lyrics</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="fixed-bottom player-bar d-flex align-items-center px-2 px-md-4">
         <div class="flex-grow-1 h-100 d-flex align-items-center" id="spotify-player-container">
             <!-- Spotify Iframe -->
         </div>
         <div class="ms-3">
             <button id="lyrics-toggle-btn" class="btn btn-link text-secondary" title="Lyrics">
-                <img src="./assets/lyrics.png" style="width: 24px; filter: brightness(0) invert(1);">
+                <img src="./assets/Gobletto.png" style="width: 24px;">
             </button>
         </div>
     </div>
+
     <script src="./js/jquery.min.js"></script>
     <script src="./js/const.js"></script>
-    <script type="text/javascript" src="./js/playlist.js"></script>
+    <script src="./js/playlist.js"></script>
     <script src="./js/auth.js"></script>
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 </body>
+
 </html>

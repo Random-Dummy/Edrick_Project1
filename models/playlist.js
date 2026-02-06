@@ -8,12 +8,7 @@ const playlistSchema = new mongoose.Schema({
         spotifyTrackId: { type: String, required: true },
         name: { type: String, required: true },
         artist: { type: String, required: true },
-        album: {
-            type: String,
-            default: function () {
-                return this.name; // Default album to the song's name
-            }
-        },
+        album: String,
         durationMs: Number,
         albumImage: String
     }],

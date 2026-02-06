@@ -16,10 +16,27 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
 
 // Initialize UI components and Event Listeners
 $(async function () {
+    // Lyrics Sidebar Toggle Logic
+    const lyricsBtn = $('#lyrics-toggle-btn');
+    const lyricsCol = $('#lyrics-column');
+    const playlistCol = $('#playlist-column');
 
     $('#playlist-container').on('click', '.song-row', function () {
         const trackId = $(this).attr('data-id');
-        loadNewTrack(trackId);
+        currentTrackId = trackId;
+
+        if (embedController) {
+            embedController.loadUri(`spotify:track:${trackId}`).then(() => {
+                embedController.togglePlay();
+
+                // Now update lyrics after track is loaded
+                if (!lyricsCol.hasClass('d-none')) {
+                    getLyrics(trackId);
+                }
+            }).catch(error => console.error("Error loading track:", error));
+        } else {
+            console.error("Player controller not initialized yet.");
+        }
     });
 
     $('#playlist-container').on('click', '.delete-track-btn', function (e) {
@@ -28,18 +45,20 @@ $(async function () {
         deleteTrack(trackId);
     });
 
-    // Lyrics Sidebar Toggle Logic
-    const lyricsBtn = $('#lyrics-toggle-btn');
-    const lyricsCol = $('#lyrics-column');
-    const playlistCol = $('#playlist-column');
-
+    // Lyrics toggle button
     lyricsBtn.on('click', function () {
         lyricsCol.toggleClass('d-none');
 
         if (!lyricsCol.hasClass('d-none')) {
             lyricsBtn.removeClass('text-secondary').addClass('text-success');
             playlistCol.removeClass('mx-auto');
-            getLyrics(currentTrackId);
+
+            // Always fetch lyrics for current track
+            if (currentTrackId) {
+                getLyrics(currentTrackId);
+            } else if (trackData.length > 0) {
+                getLyrics(trackData[0].id);
+            }
         } else {
             lyricsBtn.addClass('text-secondary').removeClass('text-success');
             playlistCol.addClass('mx-auto');
@@ -78,22 +97,84 @@ $(async function () {
     if (playlistId) {
         try {
             const response = await fetch(`${PLAYLISTS_URL}?token=${sessionStorage.token}`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.playlists) {
-                    const playlist = data.playlists.find(p => p._id === playlistId);
-                    if (playlist) {
-                        $('#playlistname').text(playlist.name);
-                        let image = playlist.playlistpicture || (playlist.tracks && playlist.tracks[0]?.albumImage) || "";
-                        $('#playlist-image').css('background-image', image ? `url('${image}')` : 'none');
-                    }
+            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error("Expected JSON but got:", text);
+                throw new Error("Server did not return JSON for playlist info");
+            }
+
+            const playlistData = await response.json(); // renamed variable
+            if (playlistData.playlists) {
+                const playlist = playlistData.playlists.find(p => p._id === playlistId);
+                if (playlist) {
+                    $('#playlistname').text(playlist.name);
+                    $('#playlist-description').text(
+                        playlist.description || 'No description'
+                    );
+                    let image = playlist.playlistpicture || (playlist.tracks && playlist.tracks[0]?.albumImage) || "";
+                    $('#playlist-image').css('background-image', image ? `url('${image}')` : 'none');
                 }
             }
         } catch (error) {
             console.error('Failed to load playlist details:', error);
+            $('#playlistname').text("Playlist info unavailable");
         }
-    } else {
-        $('#playlistname').text("Liked Songs");
+    }
+
+    // Fetch tracks
+    const tracksUrl = playlistId
+        ? `${PLAYLISTS_URL}/${playlistId}/tracks?token=${sessionStorage.token}`
+        : `${LIKED_SONGS_URL}?token=${sessionStorage.token}`;
+
+    try {
+        const response = await fetch(tracksUrl);
+        const contentType = response.headers.get('content-type');
+
+        let jsonData;
+        if (contentType && contentType.includes('application/json')) {
+            jsonData = await response.json();
+        } else {
+            const text = await response.text();
+            console.error("Expected JSON but got:", text);
+            throw new Error("Server did not return JSON");
+        }
+
+        if (!response.ok) {
+            throw new Error(jsonData?.message || `Error fetching tracks: ${response.statusText}`);
+        }
+
+        const tracks = jsonData.tracks || jsonData.likedSongs || [];
+        trackData = tracks.map(track => {
+            // Check both possibilities
+            const trackId = track.spotifyTrackId || track.id || track.track?.id;
+
+            if (!trackId) {
+                console.warn("Track missing ID:", track);
+                return null;
+            }
+
+            return {
+                id: trackId,
+                name: track.name || '',
+                artist: track.artist || '',
+                album: track.album || '',
+                durationMs: track.durationMs || 0,
+                albumImage: track.albumImage || track.album?.images?.[0]?.url || ''
+            };
+        }).filter(track => track !== null);
+
+        renderPlaylist(trackData);
+
+        if (iFrameAPI && !embedController && trackData.length > 0) {
+            initSpotifyPlayer(trackData[0].id);
+        }
+
+    } catch (error) {
+        console.error('Failed to load playlist:', error);
+        $('#playlist-container').html(`<p class="text-danger">Error: ${error.message}</p>`);
     }
 
     // Fetch tracks
@@ -120,20 +201,37 @@ $(async function () {
         }
 
         // Use jsonData instead of data
-        const tracks = jsonData.tracks || jsonData.likedSongs;
-        if (tracks) {
-            trackData = tracks.map(track => ({
-                id: track.spotifyTrackId,
-                name: track.name,
-                artist: track.artist,
-                album: track.album,
-                durationMs: track.durationMs,
-                albumImage: track.albumImage
-            }));
-            renderPlaylist(trackData);
-            if (iFrameAPI && !embedController && trackData.length > 0) {
+        // In your fetch/processing code, use:
+        const tracks = jsonData.tracks || jsonData.likedSongs || [];
+        console.log("First track example:", tracks[0]); // Debug
+
+        trackData = tracks.map(track => {
+            // The correct property is spotifyTrackId
+            const trackId = track.spotifyTrackId;
+
+            if (!trackId) {
+                console.warn("Track missing spotifyTrackId:", track);
+                return null;
+            }
+
+            return {
+                id: trackId,  // Use spotifyTrackId as the ID
+                name: track.name || '',
+                artist: track.artist || '',
+                album: track.album || '',
+                durationMs: track.durationMs || 0,
+                albumImage: track.albumImage || ''
+            };
+        }).filter(track => track !== null); // Filter out null tracks
+
+        // Then check if we have valid tracks before initializing player
+        if (trackData.length > 0 && trackData[0].id) {
+            console.log("First track ID:", trackData[0].id);
+            if (iFrameAPI && !embedController) {
                 initSpotifyPlayer(trackData[0].id);
             }
+        } else {
+            console.error("No valid tracks found or first track missing ID");
         }
     } catch (error) {
         console.error('Failed to load playlist:', error);
@@ -183,11 +281,15 @@ async function deleteTrack(trackId) {
     }
 }
 
+// In renderPlaylist function:
 function renderPlaylist(tracks) {
     const container = $('#playlist-container');
     if (!container.length) return;
 
-    container.html(tracks.map((track, index) => `
+    container.html(tracks.map((track, index) => {
+        if (!track.id) return ''; // Skip tracks without ID
+
+        return `
         <div data-id="${track.id}" class="song-row row mx-0 align-items-center py-2 rounded-lg cursor-pointer">
             <div class="col-1 text-center text-secondary track-index">
                 <span>${index + 1}</span>
@@ -210,7 +312,8 @@ function renderPlaylist(tracks) {
             </div>
             <div class="col-1 small text-secondary text-end">${formatDuration(track.durationMs)}</div>
         </div>
-    `).join(''));
+        `;
+    }).join(''));
 }
 
 function renderFullPlaylist() {

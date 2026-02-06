@@ -28,7 +28,7 @@ function authenticationCheck(req, res, next) {
     let token = req.query.token;
     if (!token) {
         return res.status(401).json({ "message": "No tokens are provided." });
-    } 
+    }
 
     userService.checkToken(token)
         .then(function (response) {
@@ -135,10 +135,10 @@ router.put('/user', authenticationCheck, async function (req, res) {
 
 // Create Playlist
 router.post('/playlists/create', authenticationCheck, async function (req, res) {
-    let { name, track } = req.body;
+    let { name, description, track } = req.body; // Added description
     let userId = res.locals.userId;
 
-    playlistService.createPlaylist(name, userId, track)
+    playlistService.createPlaylist(name, userId, description || '', track)
         .then(function (response) {
             res.status(200).json({ "message": response });
         })
@@ -160,6 +160,33 @@ router.get('/playlists', authenticationCheck, async function (req, res) {
             console.error("Error getting playlists:", error.message);
             res.status(500).json({ "message": error.message });
         });
+});
+
+// Get tracks of a specific playlist
+router.get('/playlists/:playlistId/tracks', authenticationCheck, async function (req, res) {
+    const userId = res.locals.userId;
+    const playlistId = req.params.playlistId;
+
+    try {
+        const playlist = await playlistService.getPlaylistById(playlistId, userId);
+        if (!playlist) {
+            return res.status(404).json({ success: false, message: "Playlist not found" });
+        }
+
+        res.status(200).json({
+            tracks: (playlist.tracks || []).map(t => ({
+                spotifyTrackId: t.spotifyTrackId,
+                name: t.name,
+                artist: t.artist,
+                album: t.album,
+                albumImage: t.albumImage,
+                durationMs: t.durationMs
+            }))
+        });
+    } catch (error) {
+        console.error("Error fetching playlist tracks:", error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
 // Update Playlist

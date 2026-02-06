@@ -5,7 +5,22 @@ const user = require('../models/user.js');
 let playlistService = {
     async createPlaylist(name, creator, description, track) {
         try {
-            await playlist.create({ name, creator, description, tracks: track });
+            // Ensure tracks are properly formatted
+            const formattedTracks = track ? [{
+                spotifyTrackId: track.spotifyTrackId,
+                name: track.name,
+                artist: track.artist,
+                album: track.album || '',
+                durationMs: track.durationMs || 0,
+                albumImage: track.albumImage || ''
+            }] : [];
+
+            await playlist.create({
+                name,
+                creator,
+                description,
+                tracks: formattedTracks
+            });
             return "Playlist created successfully";
         } catch (error) {
             console.error("Error creating playlist:", error.message);
@@ -50,18 +65,39 @@ let playlistService = {
         }
     },
 
-    async addToPlaylist(playlistId, userId, track) {
+    async getPlaylistById(playlistId, userId) {
         try {
             const findPlaylist = await playlist.findOne({ _id: playlistId, creator: userId });
             if (!findPlaylist) { throw new Error("Playlist not found or no permission to access it"); }
-            const trackExist = findPlaylist.tracks.some(t => t.spotifyTrackId === track.spotifyTrackId);
-            if (trackExist) { throw new Error("Track already exists in the playlist"); }
-            findPlaylist.tracks.push(track);
-            await findPlaylist.save();
-            return `Track ${track.name} added to playlist successfully`;
+            return findPlaylist;
         } catch (error) {
-            console.error("Error adding track to playlist:", error.message);
-            throw new Error(`Failed to add track to playlist | ${error.message}`);
+            console.error("Error retrieving playlist:", error.message);
+            throw new Error(`Failed to retrieve playlist | ${error.message}`);
+        }
+    },
+
+    async addToPlaylist(playlistId, userId, track) {
+        try {
+            const findPlaylist = await playlist.findOne({ _id: playlistId, creator: userId });
+            if (!findPlaylist) throw new Error("Playlist not found");
+
+            const trackExist = findPlaylist.tracks.some(t => t.spotifyTrackId === track.spotifyTrackId);
+            if (trackExist) throw new Error("Track already exists in playlist");
+
+            findPlaylist.tracks.push({
+                spotifyTrackId: track.spotifyTrackId,
+                name: track.name,
+                artist: track.artist,
+                album: track.album || track.albumName || '', // Added fallback for album name
+                durationMs: track.durationMs || track.duration || 0,
+                albumImage: track.albumImage || track.image || '' // Added fallback for album image
+            });
+
+            await findPlaylist.save();
+            return `Track ${track.name} added successfully`;
+        } catch (error) {
+            console.error("Error adding track:", error.message);
+            throw new Error(error.message);
         }
     },
 
