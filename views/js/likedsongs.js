@@ -1,11 +1,7 @@
-const urlParams = new URLSearchParams(window.location.search);
-const playlistId = urlParams.get('id');
-
 let embedController = null;
 let isPlaying = false;
 let trackData = [];
 let iFrameAPI = null;
-let currentTrackId = null;
 
 window.onSpotifyIframeApiReady = (IFrameAPI) => {
     iFrameAPI = IFrameAPI;
@@ -14,7 +10,7 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
     }
 };
 
-// Initialize UI components and Event Listeners
+// Initialize UI components
 $(async function () {
 
     $('#playlist-container').on('click', '.song-row', function () {
@@ -28,7 +24,7 @@ $(async function () {
         deleteTrack(trackId);
     });
 
-    // Lyrics Sidebar Toggle Logic
+    // Lyrics Sidebar Toggle
     const lyricsBtn = $('#lyrics-toggle-btn');
     const lyricsCol = $('#lyrics-column');
     const playlistCol = $('#playlist-column');
@@ -39,12 +35,7 @@ $(async function () {
         // Toggle button active state and adjust layout
         if (!lyricsCol.hasClass('d-none')) {
             lyricsBtn.removeClass('text-secondary').addClass('text-success');
-            playlistCol.removeClass('mx-auto');
-            getLyrics(currentTrackId);
-
-            // if (currentTrackId) {
-            //     console.log("Current Spotify Track ID:", currentTrackId);
-            // }
+            playlistCol.removeClass('mx-auto'); // Align left when sidebar is open
         } else {
             lyricsBtn.addClass('text-secondary').removeClass('text-success');
             playlistCol.addClass('mx-auto'); // Center when sidebar is closed
@@ -85,45 +76,18 @@ $(async function () {
         renderPlaylist(filteredTracks);
     });
 
-    if (playlistId) {
-        try {
-            const response = await fetch(`${PLAYLISTS_URL}?token=${sessionStorage.token}`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.playlists) {
-                    const playlist = data.playlists.find(p => p._id === playlistId);
-                    if (playlist) {
-                        $('#playlistname').text(playlist.name);
-                        let image = playlist.playlistpicture;
-                        if (!image && playlist.tracks && playlist.tracks.length > 0) {
-                            image = playlist.tracks[0].albumImage;
-                        }
-                        image = image || "";
-                        $('#playlist-image').css('background-image', image ? `url('${image}')` : 'none');
-                        // console.log("Debug - Playlist Name:", playlist.name);
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load playlist details:', error);
-        }
-    } else {
-        $('#playlistname').text("Liked Songs");
-    }
 
-    const url = playlistId ? `${PLAYLISTS_URL}/${playlistId}/tracks?token=${sessionStorage.token}` : `${LIKED_SONGS_URL}?token=${sessionStorage.token}`;
-
+    const url = `${LIKED_SONGS_URL}?token=${sessionStorage.token}`;
     try {
         const response = await fetch(url);
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || `Error fetching playlist: ${response.statusText}`);
+            throw new Error(errorData.message || `Error fetching liked songs: ${response.statusText}`);
         }
 
         const data = await response.json();
-        const tracks = data.tracks || data.likedSongs;
-        if (data.success && tracks) {
-            trackData = tracks.map(track => ({
+        if (data.success && data.likedSongs) {
+            trackData = data.likedSongs.map(track => ({
                 id: track.spotifyTrackId,
                 name: track.name,
                 artist: track.artist,
@@ -137,56 +101,30 @@ $(async function () {
                 initSpotifyPlayer(trackData[0].id);
             }
         } else {
-            throw new Error(data.message || 'Could not retrieve tracks for the playlist.');
+            if (data.success && (!data.likedSongs || data.likedSongs.length === 0)) {
+                $('#playlist-container').html('<p class="text-white">No liked songs yet.</p>');
+            } else {
+                throw new Error(data.message || 'Could not retrieve liked songs.');
+            }
         }
     } catch (error) {
-        console.error('Failed to load playlist:', error);
+        console.error('Failed to load liked songs:', error);
         $('#playlist-container').html(`<p class="text-danger">Error: ${error.message}</p>`);
     }
 });
 
 // --- Helper Functions ---
 
-async function getLyrics(trackId) {
-    if (!trackId) {
-        console.error("Error: Invalid Track ID");
-        return;
-    }
-
-
-    try {
-        const response = await fetch(`${TRACKS_URL}/${trackId}/lyrics?token=${sessionStorage.token}`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.lyrics) {
-                console.log(data.lyrics);
-                $('#lyrics-content').text(data.lyrics).css('white-space', 'pre-wrap');
-            } else {
-                $('#lyrics-content').text("Lyrics not found.");
-            }
-        } else {
-            $('#lyrics-content').text("Lyrics not found.");
-        }
-    }catch (error) {
-        console.error("Error fetching lyrics:", error);
-        $('#lyrics-content').text("Lyrics not found.");
-    }
-}
-
 function formatDuration(ms) {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `:${seconds.toString().padStart(2, '0')}`;
 }
 
 async function deleteTrack(trackId) {
-    if (!confirm("Are you sure you want to remove this track?")) return;
-
     try {
-        const deleteUrl = playlistId ? `${PLAYLISTS_URL}/${playlistId}/tracks/${trackId}?token=${sessionStorage.token}` : `${LIKED_SONGS_URL}/${trackId}?token=${sessionStorage.token}`;
-
-        const response = await fetch(deleteUrl, {
+        const response = await fetch(`${LIKED_SONGS_URL}/${trackId}?token=${sessionStorage.token}`, {
             method: 'DELETE'
         });
 
@@ -195,10 +133,10 @@ async function deleteTrack(trackId) {
             renderPlaylist(trackData);
         } else {
             const data = await response.json();
-            alert(data.message || "Failed to delete track.");
+            alert(data.message || "Failed to remove track.");
         }
     } catch (error) {
-        console.error("Error deleting track:", error);
+        console.error("Error removing track:", error);
     }
 }
 
@@ -264,30 +202,24 @@ function initSpotifyPlayer(firstTrackId) {
         uri: `spotify:track:${firstTrackId}`
     };
 
-    currentTrackId = firstTrackId;
     const callback = (Controller) => {
         embedController = Controller;
         // console.log("Spotify Embed Controller initialized.");
-
     };
 
     iFrameAPI.createController(element, options, callback);
 }
 
 function loadNewTrack(trackId) {
-    // console.log("Debug - Clicked Track ID:", trackId);
-    // if (!trackId || trackId === 'undefined') {
-    console.error("Error: Invalid Track ID");
-    //     return;
-    // }
+    if (!trackId || trackId === 'undefined') {
+        console.error("Error: Invalid Track ID");
+        return;
+    }
     if (embedController) {
-        currentTrackId = trackId;
         const trackUri = `spotify:track:${trackId}`;
-        // console.log("Debug - Loading URI:", trackUri);
         embedController.loadUri(trackUri).then(() => {
             // Start playing immediately after loading
             embedController.togglePlay();
-            // console.log(`Loaded and started playing track: ${trackId}`);
         }).catch(error => {
             console.error("Error loading track in Spotify player:", error);
         });

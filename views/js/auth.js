@@ -15,9 +15,10 @@ $(function () {
     }
 
     // Initialize logout button if exists
-    if ($('#logoutbutton').length) {
-        $('#logoutbutton').on('click', logout);
-    }
+    $('#logout-btn').on('click', function(e) {
+        e.preventDefault();
+        logout();
+    });
 
     // Initialize login form if exists
     if ($('#login-form').length) {
@@ -107,26 +108,28 @@ async function handleRegister(e) {
 // Logout function
 async function logout() {
     try {
-        const token = sessionStorage.token;
+        const token = sessionStorage.getItem('token');
         if (!token) {
-            location.href = "login.html";
+            window.location.href = 'login.html';
             return;
         }
 
-        const response = await fetch(LOGOUT_URL + "?token=" + token);
-        sessionStorage.removeItem("token");
+        const response = await fetch('/user/logout?token=' + token);
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('username');
 
         if (response.ok) {
-            location.href = "login.html";
+            window.location.href = 'login.html';
         } else {
             const err = await response.json();
             console.log(err.message);
-            location.href = "login.html";
+            window.location.href = 'login.html';
         }
     } catch (error) {
         console.error("Error during logout:", error);
-        sessionStorage.removeItem("token");
-        location.href = "login.html";
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('username');
+        window.location.href = 'login.html';
     }
 }
 

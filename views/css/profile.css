@@ -1,0 +1,267 @@
+.profile-box {
+    background-color: var(--dark-gray);
+    padding: 40px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+    margin: 1px auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.profile-box h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #b3b3b3;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background-color: #333;
+    color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: white;
+}
+
+.disabled-input {
+    background-color: #2a2a2a !important;
+    color: #777 !important;
+    cursor: not-allowed;
+}
+
+.info-text {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.save-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #1ed760;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.2s;
+    margin-top: 10px;
+}
+
+.save-btn:hover {
+    transform: scale(1.02);
+    background-color: #2d9c54;
+}
+
+.message-area {
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 0.9rem;
+    min-height: 20px;
+}
+
+.text-success {
+    color: var(--spotify-green);
+}
+
+.text-danger {
+    color: #e91429;
+}
+
+#message-area {
+    color: red;
+}
+
+.profile-box {
+    background-color: var(--dark-gray);
+    padding: 40px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+    margin: 1px auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.profile-box h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #b3b3b3;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background-color: #333;
+    color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: white;
+}
+
+.disabled-input {
+    background-color: #2a2a2a !important;
+    color: #777 !important;
+    cursor: not-allowed;
+}
+
+.info-text {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.save-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #1ed760;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.2s;
+    margin-top: 10px;
+}
+
+.save-btn:hover {
+    transform: scale(1.02);
+    background-color: #2d9c54;
+}
+
+.message-area {
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 0.9rem;
+    min-height: 20px;
+}
+
+.text-success {
+    color: var(--spotify-green);
+}
+
+.text-danger {
+    color: #e91429;
+}
+
+#message-area {
+    color: red;
+}
+
+/* --- New Stats Styling --- */
+.stats-list {
+    padding: 0;
+    list-style: none;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    /* Subtle background */
+    margin-bottom: 10px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.stat-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1DB954;
+    /* Spotify Green */
+    width: 30px;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.stat-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+    background-color: #282828;
+}
+
+.stat-img.rounded-circle {
+    border-radius: 50%;
+    /* Circular images for artists */
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.stat-name {
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1rem;
+}
+
+.stat-name:hover {
+    text-decoration: underline;
+}
+
+.stat-artist {
+    color: #b3b3b3;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hours-display {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 10px;
+}

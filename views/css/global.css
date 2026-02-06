@@ -1,0 +1,107 @@
+/* Variables */
+:root {
+    --primary-color: #1DB954;
+    /* Spotify Green */
+    --secondary-color: #191414;
+    /* Spotify Black */
+    --background-color: #121212;
+    --text-color: #FFFFFF;
+    --light-gray: #B3B3B3;
+    --dark-gray: #282828;
+    --medium-gray: #535353;
+}
+
+/* Global Styles and Typography */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 80px;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #000000;
+}
+
+/* --- Navigation & Header (Shared) --- */
+.navbar {
+    background-color: rgb(42, 44, 42);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo h1 {
+    color: var(--primary-color);
+    font-size: 1.8em;
+    margin: 0;
+}
+
+.logo a {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* space between image and text */
+}
+
+.logo img {
+    height: 40px;
+    width: auto;
+}
+.auth-btn {
+    background-color: var(--primary-color) !important;
+    color: var(--text-color);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.auth-btn:hover {
+    color: #3f3f3f;
+}
+
+/* --- Main Content Area --- */
+.container {
+    padding: 30px;
+    flex-grow: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+h2 {
+    margin-bottom: 25px;
+    color: var(--light-gray);
+    font-size: 2em;
+}

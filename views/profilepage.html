@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="./css/global.css">
+    <link rel="stylesheet" href="./css/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <a href="index.html"><img src="./assets/Gobletto.png"><h1>Gobletto</h1></a>
+        </div>
+        <nav>
+            <a href="profilepage.html" class="auth-btn"
+                style="background-color: var(--medium-gray); text-decoration: none;"><i class="fas fa-user"></i></a>
+            <a href="login.html" class="auth-btn" name="logout" id="logoutbutton">Logout</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="profile-box">
+            <h2>Edit Profile</h2>
+            <form id="profile-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" disabled class="disabled-input">
+                    <small class="info-text">Email cannot be changed.</small>
+                </div>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="password">New Password</label>
+                    <input type="password" id="password" placeholder="Leave blank to keep current password">
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm New Password</label>
+                    <input type="password" id="confirm-password" placeholder="Confirm new password">
+                </div>
+
+                <div id="message-area" class="message-area"></div>
+
+                <button type="submit" class="save-btn">Save Changes</button>
+            </form>
+        </div>
+        <hr style="border-color: #333; margin: 20px 0;">
+
+        <h3>Spotify Stats</h3>
+        <div id="spotify-connect-section">
+            <button id="connect-spotify-btn" class="save-btn" style="background-color: #1DB954;">
+                Connect Spotify Account
+            </button>
+        </div>
+
+        <div id="spotify-stats-section" style="display:none; margin-top: 20px;">
+
+            <div class="stats-card" style="margin-bottom: 30px; text-align: center;">
+                <h4 style="color:white; margin-bottom:10px;">Recent Activity</h4>
+                <div class="hours-display">
+                    <span id="hours-played-count" style="font-size: 3rem; font-weight: bold; color: #1DB954;">0</span>
+                    <span style="font-size: 1.2rem; color: #b3b3b3;">Hours Played</span>
+                </div>
+                <small style="color: #666;">(Calculated from your last 50 played tracks)</small>
+            </div>
+
+            <h4 style="color:white; margin-bottom:15px; margin-top:30px;">Top Tracks (Last Month)</h4>
+            <ul id="top-tracks-month-list" class="stats-list"></ul>
+
+            <h4 style="color:white; margin-bottom:15px; margin-top:40px;">Top Tracks (All Time)</h4>
+            <ul id="top-tracks-alltime-list" class="stats-list"></ul>
+
+            <h4 style="color:white; margin-bottom:15px; margin-top:40px;">Top Artists (All Time)</h4>
+            <ul id="top-artists-alltime-list" class="stats-list"></ul>
+        </div>
+    </main>
+
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/const.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/profile.js"></script>
+
+</body>
+
+</html>
