@@ -12,10 +12,4 @@ app.listen(port, function () {
     console.log('Genius Token:', process.env.GENIUS_ACCESS_TOKEN ? 'Loaded' : 'Missing');
 });
 
-// const IP_ADDRESS = '127.0.0.1';
-// https.createServer(sslOptions, app).listen(port, IP_ADDRESS, function () {
-//     console.log('--- Secure Server Status ---');
-//     console.log(`Server is successfully running on HTTPS`);
-//     console.log(`Listening at: https://${IP_ADDRESS}:${port}`);
-//     console.log('----------------------------');
-// });
+// http://localhost:3000/index.html
