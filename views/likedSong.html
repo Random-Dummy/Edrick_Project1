@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Playlist Page Clone</title>
+    <link rel="stylesheet" href="./css/playlist.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fab fa-spotify"></i>
+                <span>Gobletto</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </li>
+                <li class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Search</span>
+                </li>
+                <li class="nav-item">
+                    <i class="fas fa-book"></i>
+                    <span>Your Library</span>
+                </li>
+            </ul>
+
+            <div class="playlists-section">
+                <h3>PLAYLISTS</h3>
+                <ul class="playlists">
+                    <li class="playlist-item">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Create Playlist</span>
+                    </li>
+                    <li class="playlist-item active">
+                        <i class="fas fa-heart"></i>
+                        <span>Liked Songs</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="user-section">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-name">Music Lover</div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header with playlist info -->
+            <header class="playlist-header">
+                <div class="playlist-cover">
+                    <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                        alt="Playlist Cover">
+                </div>
+                <div class="playlist-info">
+                    <h1 class="playlist-title">Chill Vibes</h1>
+                    <div class="playlist-stats">
+                        <span class="playlist-owner">
+                            <i class="fas fa-user"></i> Music Lover
+                        </span>
+                    </div>
+                </div>
+            </header>
+            <!-- Songs Table -->
+            <div class="songs-table">
+                <div class="table-header">
+                    <div class="header-cell index">#</div>
+                    <div class="header-cell title">TITLE</div>
+                    <div class="header-cell album">ALBUM</div>
+                    <div class="header-cell duration">
+                        <i class="far fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="fixed-bottom player-bar d-flex align-items-center px-2 px-md-4">
+                <div class="flex-grow-1 h-100 d-flex align-items-center" id="spotify-player-container">
+                    <!-- Spotify Iframe -->
+                </div>
+                <div class="ms-3">
+                    <button id="lyrics-toggle-btn" class="btn btn-link text-secondary" title="Lyrics">
+                        <img src="./assets/lyrics.png" style="width: 24px; filter: brightness(0) invert(1);">
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/playlist.js"></script>
+    <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+</body>
+
+</html>

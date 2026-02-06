@@ -3,9 +3,9 @@ const playlist = require('../models/playlist.js');
 const user = require('../models/user.js');
 
 let playlistService = {
-    async createPlaylist(name, creator, track) {
+    async createPlaylist(name, creator, description, track) {
         try {
-            await playlist.create({ name, creator, tracks: track });
+            await playlist.create({ name, creator, description, tracks: track });
             return "Playlist created successfully";
         } catch (error) {
             console.error("Error creating playlist:", error.message);
@@ -29,7 +29,6 @@ let playlistService = {
 
     async updatePlaylist(playlistId, userId, data) {
         try {
-            // FIXED: Changed user to creator to match schema
             const findPlaylist = await playlist.findOne({ _id: playlistId, creator: userId });
             if (!findPlaylist) { throw new Error("Playlist not found or no permission to access it"); }
             let result = await playlist.findByIdAndUpdate(playlistId, data, { new: true });

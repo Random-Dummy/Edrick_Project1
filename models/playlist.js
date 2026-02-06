@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const playlistSchema = new mongoose.Schema({
     name: { type: String, required: true },
+    description: String,
     creator: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },
     tracks: [{
         spotifyTrackId: { type: String, required: true },
