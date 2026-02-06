@@ -136,6 +136,29 @@ let likedsongservice = {
                 error: error.message
             };
         }
+    },
+
+    async getUserLikedSongs(userId) {
+        try {
+            const userLikedSongs = await likedSongs.findOne({ user: userId });
+            if(!userLikedSongs) {
+                return {
+                    success: true,
+                    tracks: [],
+                    count: 0,
+                    message: 'No liked songs found',
+                };
+            }
+            return {
+                success: true,
+                tracks: userLikedSongs.tracks,
+                count: userLikedSongs.tracks.length,
+                message: 'Liked songs retrieved successfully',
+            }
+        } catch (error) {
+            console.error('Error retrieving user liked songs:', error);
+            throw new Error('Failed to retrieve liked songs');
+        }
     }
 };
 

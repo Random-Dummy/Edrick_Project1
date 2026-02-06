@@ -17,6 +17,19 @@ let userService = {
         }
     },
 
+    async updateUser(userId, data) {
+        try {
+            const updatedUser = await user.findByIdAndUpdate(userId, data, { new: true });
+            if (!updatedUser) {
+                throw new Error("User not found");
+            }
+            return updatedUser;
+        } catch (error) {
+            console.error("Error updating user:", error.message);
+            throw new Error("Failed to update user");
+        }
+    },
+
     async deleteUser(userId) {
         try {
             const deletedUser = await user.findByIdAndDelete(userId);

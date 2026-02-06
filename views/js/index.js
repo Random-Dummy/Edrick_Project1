@@ -8,7 +8,7 @@ $(async function () {
 
         clearTimeout(searchTimeout);
 
-        // Set a new timeout to avoid too many API calls
+        // Set a new timeout to avoid too many API calls - DEEPSEEK
         searchTimeout = setTimeout(() => {
             if (query) {
                 searchTracks(query);
@@ -37,6 +37,14 @@ $(async function () {
             const trackId = $(this).closest(".track-card").data("track-id");
             addToLikedSongs(trackId);
         });
+
+        $("#search-results").on("click", ".btn-share", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const trackId = $(this).closest(".track-card").data("track-id");
+            openShareModal(trackId);
+        });
+
     } else {
         console.error("#search-results element not found!");
     }
@@ -45,6 +53,7 @@ $(async function () {
         $("#playlist-modal").hide();
         $("#create-playlist-modal").hide();
         $("#delete-playlist-modal").hide();
+        $("#archive-playlist-modal").hide();
         $("#edit-playlist-modal").hide();
     });
 
@@ -60,6 +69,12 @@ $(async function () {
         openDeletePlaylistModal();
     });
 
+    $("#archiveoption").on("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openArchivePlaylistModal();
+    });
+
     $("#editoption").on("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -69,39 +84,65 @@ $(async function () {
     let response = await fetch(PLAYLISTS_URL + "?token=" + sessionStorage.token);
     if (response.ok) {
         let data = await response.json();
-        if (data.playlists) {
+        if (data.success) {
             displayPlaylists(data.playlists);
         }
     }
     try {
-        const response = await fetch(`/liked-songs/with-lyrics?token=${sessionStorage.token}`);
-        if (response.ok) {
-            const data = await response.json();
-            $("#liked-songs-count").text((data.results?.length || 0) + " Tracks");
+        let likedSongsCount = await fetch(LIKED_SONGS_URL + "?token=" + sessionStorage.token);
+        if (likedSongsCount.ok) {
+            let likedSongsData = await likedSongsCount.json();
+            $("#liked-songs-count").text((likedSongsData.count || 0) + " Tracks");
         }
-    } catch (err) {
-        console.error(err);
+
+    } catch (error) {
+        console.error("Error fetching liked songs count:", error);
     }
+
+    $("#search-results").on("click", ".btn-like", function (e) {
+        console.log("LIKE CLICKED");
+        const trackId = $(this).closest(".track-card").data("track-id");
+        console.log("Track ID:", trackId);
+        addToLikedSongs(trackId);
+    });
+
+    $("#search-results").on("click", ".btn-add-playlist", function (e) {
+        console.log("ADD TO PLAYLIST CLICKED");
+        const trackId = $(this).closest(".track-card").data("track-id");
+        console.log("Track ID:", trackId);
+        openPlaylistModal(trackId);
+    });
 });
 
 // --- Helper Functions ---
 
+// Display friends list
+
+const SPOTIFY_SEARCH_URL = "http://localhost:3000/spotify/search";
 // Search for tracks based on query
 async function searchTracks(query) {
     try {
         const response = await fetch(
-            `/spotify/search?query=${encodeURIComponent(query)}&token=${sessionStorage.token}`
+            `${SPOTIFY_SEARCH_URL}?query=${encodeURIComponent(query)}&limit=20&token=${sessionStorage.token}`,
+            { method: "GET" }
         );
 
-        if (response.ok) {
-            const data = await response.json();
-            displaySearchResults(data.tracks || data);
-        } else {
-            $("#search-results").html("<p>Search failed.</p>");
+        if (!response.ok) {
+            throw new Error("Spotify search failed");
         }
+
+        const data = await response.json();
+
+        if (!data || !data.tracks || data.tracks.length === 0) {
+            $("#search-results").html("<p>No results found.</p>");
+            return;
+        }
+
+        displaySearchResults(data.tracks);
+
     } catch (error) {
-        console.error("Error during search:", error);
-        $("#search-results").html("<p>Error occurred.</p>");
+        console.error("Spotify search error:", error);
+        $("#search-results").html("<p>Failed to search Spotify.</p>");
     }
 }
 // Display notification message to user
@@ -141,25 +182,38 @@ function displaySearchResults(tracks) {
     const searchResults = $("#search-results");
     searchResults.empty();
 
-    if (tracks.length === 0) {
+    if (!tracks || tracks.length === 0) {
         searchResults.html("<p>No results found.</p>");
         return;
     }
 
     tracks.forEach(track => {
-        const albumImage = track.albumImage ? track.albumImage : "./assets/default-album.png";
-        const artists = track.artist;
+        const albumImage = track.albumImage || "./assets/default-album.png";
+        const artists = track.artist || "Unknown Artist";
 
         const trackCard = $(`
             <div class="card track-card" data-track-id="${track.spotifyTrackId}">
-                <div class="card-image" style="background-image: url('${albumImage}'); background-size: cover; background-position: center;"></div>
+                <div class="card-image"
+                    style="background-image: url('${albumImage}');
+                           background-size: cover;
+                           background-position: center;">
+                </div>
+
                 <div class="card-info">
                     <p class="card-title">${track.name}</p>
                     <p class="card-subtitle">${artists}</p>
                 </div>
+
                 <div class="card-actions d-flex justify-content-around p-2">
-                    <button class="btn btn-outline-danger btn-sm rounded-circle btn-like" title="Like"><i class="fa fa-heart"></i></button>
-                    <button class="btn btn-outline-primary btn-sm rounded-circle btn-add-playlist" title="Add to Playlist"><i class="fa fa-plus"></i></button>
+                    <button class="btn btn-outline-danger btn-sm rounded-circle btn-like">
+                        <i class="fa fa-heart"></i>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm rounded-circle btn-add-playlist">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm rounded-circle btn-share">
+                        <i class="fa fa-share"></i>
+                    </button>
                 </div>
             </div>
         `);
@@ -167,7 +221,6 @@ function displaySearchResults(tracks) {
         searchResults.append(trackCard);
     });
 }
-
 
 // Open modal to select playlist for adding track
 async function openPlaylistModal(trackId) {
@@ -249,10 +302,10 @@ async function addTrackToPlaylist(trackId, playlistId) {
 
         const data = await response.json();
 
-        if (response.ok) {
+        if (response.ok && data.success) {
             showNotification(data.message || "Track added to playlist 🎶", 'success');
         } else {
-            showNotification(data.message || "Failed to add track", 'error');
+            showNotification(data.message || "Track already exists", 'error');
         }
 
     } catch (error) {
@@ -397,50 +450,126 @@ async function updatePlaylist(playlistId, newName) {
 }
 
 // Add a track to liked songs
-// Debug-enhanced Add to Liked Songs
 async function addToLikedSongs(trackId) {
-    console.log("=== addToLikedSongs called ===");
-    console.log("Track ID:", trackId);
-    console.log("Token:", sessionStorage.token);
-
-    if (!trackId) {
-        console.warn("Track ID is missing! Aborting add.");
-        showNotification("Track ID missing!", "error");
-        return;
-    }
-
-    if (!sessionStorage.token) {
-        console.warn("No token found! User might be logged out.");
-        showNotification("You must be logged in to like songs!", "error");
-        return;
-    }
-
     try {
-        const url = `${LIKED_SONGS_URL}?token=${sessionStorage.token}`;
-        console.log("POST URL:", url);
-        console.log("Payload:", { spotifyTrackId: trackId });
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ spotifyTrackId: trackId })
-        });
+        const response = await fetch(
+            `${LIKED_SONGS_URL}?token=${sessionStorage.token}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ spotifyTrackId: trackId })
+            }
+        );
 
         const data = await response.json();
-
-        console.log("Response OK:", response.ok);
-        console.log("Response JSON:", data);
 
         if (response.ok && data.success) {
             showNotification(data.message || "Added to Liked Songs ❤️", 'success');
         } else {
-            console.warn("Failed to add track. Backend response indicates failure.");
-            showNotification(data.message || "Failed to add to Liked Songs", 'error');
+            showNotification(data.message || "Already in Liked Songs", 'error');
         }
 
     } catch (error) {
-        console.error("Error adding track to Liked Songs:", error);
-        showNotification("Error adding to Liked Songs", 'error');
+        console.error("Error adding to liked songs:", error);
+        showNotification("Failed to add to Liked Songs", 'error');
+    }
+}
+
+// Open modal to archive a playlist
+async function openArchivePlaylistModal() {
+    let modal = $("#archive-playlist-modal");
+
+    if (modal.length === 0) {
+        $("body").append(`
+            <div id="archive-playlist-modal" class="modal" tabindex="-1" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1050; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Archive Playlist</h5>
+                            <button type="button" class="btn-close close-modal" aria-label="Close" style="border: none; background: none; font-size: 1.5rem;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="archive-modal-playlists-list" class="list-group">
+                                <p>Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+        modal = $("#archive-playlist-modal");
+    }
+
+    modal.css("display", "flex");
+
+    const playlistContainer = $("#archive-modal-playlists-list");
+    playlistContainer.html("<p>Loading...</p>");
+
+    try {
+        const response = await fetch(PLAYLISTS_URL + "?token=" + sessionStorage.token);
+        if (response.ok) {
+            const data = await response.json();
+            playlistContainer.empty();
+            if (data.success && data.playlists && data.playlists.length > 0) {
+                data.playlists.forEach(playlist => {
+                    const trackCount = playlist.tracks ? playlist.tracks.length : 0;
+                    const item = $(`
+                        <div class="list-group-item list-group-item-action">
+                            <div class="fw-bold">${playlist.name}</div>
+                            <div class="d-flex align-items-center mt-1">
+                                <small class="text-muted me-3">${trackCount} Tracks</small>
+                                <button class="btn btn-warning btn-sm archive-btn" id="archive-btn">Archive</button>
+                            </div>
+                        </div>
+                    `);
+
+                    item.find(".archive-btn").on("click", async function (e) {
+                        e.stopPropagation();
+                        if (confirm(`Are you sure you want to archive "${playlist.name}"?`)) {
+                            await archivePlaylist(playlist._id);
+                            modal.hide();
+                        }
+                    });
+
+                    playlistContainer.append(item);
+                });
+            } else {
+                playlistContainer.append("<p>No playlists found.</p>");
+            }
+        } else {
+            playlistContainer.html("<p>Failed loading playlists.</p>");
+        }
+    } catch (error) {
+        console.error("Error loading playlists:", error);
+        playlistContainer.html("<p>Error loading playlists.</p>");
+    }
+}
+
+// Archive a playlist
+async function archivePlaylist(playlistId) {
+    try {
+        const response = await fetch(`${PLAYLISTS_URL}/${playlistId}/archive?token=${sessionStorage.token}`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        if (response.ok) {
+            showNotification(data.message, 'success');
+            // Refresh playlists
+            let resp = await fetch(PLAYLISTS_URL + "?token=" + sessionStorage.token);
+            if (resp.ok) {
+                let d = await resp.json();
+                if (d.success) {
+                    displayPlaylists(d.playlists);
+                }
+            }
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        console.error("Error archiving playlist:", error);
+        showNotification("Error archiving playlist", 'error');
     }
 }
 
@@ -522,14 +651,13 @@ function openCreatePlaylistModal() {
 // Create a new playlist
 async function createPlaylist(name) {
     try {
-        const response = await fetch(
-            `/playlists/create?token=${sessionStorage.token}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
-            }
-        );
+        const response = await fetch(PLAYLISTS_URL + '/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: name, token: sessionStorage.token })
+        });
 
         if (response.ok) {
             let response = await fetch(PLAYLISTS_URL + "?token=" + sessionStorage.token);
@@ -644,4 +772,110 @@ async function deletePlaylist(playlistId) {
         showNotification("Error deleting playlist", 'error');
     }
 
+}
+async function openShareModal(trackId) {
+    let modal = $("#share-modal");
+
+    if (modal.length === 0) {
+        $("body").append(`
+            <div id="share-modal" class="modal" tabindex="-1" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1050; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Share with Friend</h5>
+                            <button type="button" class="btn-close close-modal" aria-label="Close" style="border: none; background: none; font-size: 1.5rem;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="share-modal-friends-list" class="list-group">
+                                <p>Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+        modal = $("#share-modal");
+
+        modal.find(".close-modal").on("click", function () {
+            modal.hide();
+        });
+    }
+
+    modal.css("display", "flex");
+
+    getFriends(trackId);
+}
+
+async function getFriends(trackId) {
+    const friendsListContainer = $("#share-modal-friends-list");
+    friendsListContainer.html("<p>Loading...</p>");
+
+    try {
+        const response = await fetch(`${FRIENDS_URL}?token=${sessionStorage.token}`);
+        if (response.ok) {
+            const data = await response.json();
+
+            if (data.success && data.message) {
+                const friends = data.message.filter(f => f.status === 'accepted');
+                displayShareFriends(friends, trackId);
+            } else {
+                friendsListContainer.html("<p>No friends found.</p>");
+            }
+        } else {
+            friendsListContainer.html("<p>Failed to load friends.</p>");
+        }
+    } catch (error) {
+        console.error("Error loading friends:", error);
+        friendsListContainer.html("<p>Error loading friends.</p>");
+    }
+}
+
+function displayShareFriends(friends, trackId) {
+    const friendsListContainer = $("#share-modal-friends-list");
+    friendsListContainer.empty();
+    let modal = $("#share-modal");
+
+    if (friends.length > 0) {
+        friends.forEach(friendship => {
+            const friend = friendship.user;
+            if (!friend) return;
+
+            const item = $(`
+                <button type="button" class="list-group-item list-group-item-action">
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold">${friend.username}</span>
+                        <small class="text-muted">${friend.email}</small>
+                    </div>
+                </button>
+            `);
+
+            item.on("click", function () {
+                shareSongUrl(trackId, friend._id);
+                showNotification(`Shared a song with ${friend.username}`, 'success');
+                modal.hide();
+            });
+
+            friendsListContainer.append(item);
+        });
+    } else {
+        friendsListContainer.html("<p>No friends found.</p>");
+    }
+}
+
+async function shareSongUrl(trackId, receiverId) {
+    try {
+        const response = await fetch(`${MESSAGES_URL}/send?token=${sessionStorage.token}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                receiverId: receiverId,
+                url: `Check out this track: https://open.spotify.com/track/${trackId}`
+            })
+        });
+        const data = await response.json();
+    } catch (error) {
+        console.error("Error sharing song URL:", error);
+    }
 }

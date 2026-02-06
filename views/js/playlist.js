@@ -36,71 +36,56 @@ $(async function () {
     lyricsBtn.on('click', function () {
         lyricsCol.toggleClass('d-none');
 
-        // Toggle button active state and adjust layout
         if (!lyricsCol.hasClass('d-none')) {
             lyricsBtn.removeClass('text-secondary').addClass('text-success');
             playlistCol.removeClass('mx-auto');
             getLyrics(currentTrackId);
-
-            // if (currentTrackId) {
-            //     console.log("Current Spotify Track ID:", currentTrackId);
-            // }
         } else {
             lyricsBtn.addClass('text-secondary').removeClass('text-success');
-            playlistCol.addClass('mx-auto'); // Center when sidebar is closed
+            playlistCol.addClass('mx-auto');
         }
     });
 
     const searchBar = $('#search-bar');
     searchBar.on('input', function () {
         const searchTerm = $(this).val().toLowerCase().trim();
-
         if (searchTerm === '') {
             renderFullPlaylist();
             return;
         }
 
-        // Score tracks based on match quality
         const scoredTracks = trackData.map(track => {
             const trackName = track.name.toLowerCase();
             const artist = track.artist.toLowerCase();
             const album = track.album.toLowerCase();
 
             let score = 0;
-
             if (trackName.startsWith(searchTerm)) score += 100;
             else if (artist.startsWith(searchTerm)) score += 80;
             else if (album.startsWith(searchTerm)) score += 60;
             else if (trackName.includes(searchTerm)) score += 40;
             else if (artist.includes(searchTerm)) score += 20;
             else if (album.includes(searchTerm)) score += 10;
-            else score = 0;
-
             return { ...track, score };
         }).filter(track => track.score > 0)
-            .sort((a, b) => b.score - a.score);
+          .sort((a, b) => b.score - a.score);
 
         const filteredTracks = scoredTracks.map(({ score, ...track }) => track);
-
         renderPlaylist(filteredTracks);
     });
 
+    // Fetch playlist info
     if (playlistId) {
         try {
             const response = await fetch(`${PLAYLISTS_URL}?token=${sessionStorage.token}`);
             if (response.ok) {
                 const data = await response.json();
-                if (data.success && data.playlists) {
+                if (data.playlists) {
                     const playlist = data.playlists.find(p => p._id === playlistId);
                     if (playlist) {
                         $('#playlistname').text(playlist.name);
-                        let image = playlist.playlistpicture;
-                        if (!image && playlist.tracks && playlist.tracks.length > 0) {
-                            image = playlist.tracks[0].albumImage;
-                        }
-                        image = image || "";
+                        let image = playlist.playlistpicture || (playlist.tracks && playlist.tracks[0]?.albumImage) || "";
                         $('#playlist-image').css('background-image', image ? `url('${image}')` : 'none');
-                        // console.log("Debug - Playlist Name:", playlist.name);
                     }
                 }
             }
@@ -111,7 +96,10 @@ $(async function () {
         $('#playlistname').text("Liked Songs");
     }
 
-    const url = playlistId ? `${PLAYLISTS_URL}/${playlistId}/tracks?token=${sessionStorage.token}` : `${LIKED_SONGS_URL}?token=${sessionStorage.token}`;
+    // Fetch tracks
+    const url = playlistId 
+        ? `${PLAYLISTS_URL}/${playlistId}/tracks?token=${sessionStorage.token}` 
+        : `${LIKED_SONGS_URL}?token=${sessionStorage.token}`;
 
     try {
         const response = await fetch(url);
@@ -122,7 +110,7 @@ $(async function () {
 
         const data = await response.json();
         const tracks = data.tracks || data.likedSongs;
-        if (data.success && tracks) {
+        if (tracks) {
             trackData = tracks.map(track => ({
                 id: track.spotifyTrackId,
                 name: track.name,
@@ -132,12 +120,9 @@ $(async function () {
                 albumImage: track.albumImage
             }));
             renderPlaylist(trackData);
-            // Initialize player with the first track if API is ready
             if (iFrameAPI && !embedController && trackData.length > 0) {
                 initSpotifyPlayer(trackData[0].id);
             }
-        } else {
-            throw new Error(data.message || 'Could not retrieve tracks for the playlist.');
         }
     } catch (error) {
         console.error('Failed to load playlist:', error);
@@ -148,26 +133,12 @@ $(async function () {
 // --- Helper Functions ---
 
 async function getLyrics(trackId) {
-    if (!trackId) {
-        console.error("Error: Invalid Track ID");
-        return;
-    }
-
-
+    if (!trackId) return;
     try {
-        const response = await fetch(`${TRACKS_URL}/${trackId}/lyrics?token=${sessionStorage.token}`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.lyrics) {
-                console.log(data.lyrics);
-                $('#lyrics-content').text(data.lyrics).css('white-space', 'pre-wrap');
-            } else {
-                $('#lyrics-content').text("Lyrics not found.");
-            }
-        } else {
-            $('#lyrics-content').text("Lyrics not found.");
-        }
-    }catch (error) {
+        const response = await fetch(`/lyrics/${trackId}?token=${sessionStorage.token}`);
+        const data = await response.json();
+        $('#lyrics-content').text(data.lyrics || "Lyrics not found.").css('white-space', 'pre-wrap');
+    } catch (error) {
         console.error("Error fetching lyrics:", error);
         $('#lyrics-content').text("Lyrics not found.");
     }
@@ -183,13 +154,12 @@ function formatDuration(ms) {
 async function deleteTrack(trackId) {
     if (!confirm("Are you sure you want to remove this track?")) return;
 
+    const deleteUrl = playlistId 
+        ? `${PLAYLISTS_URL}/${playlistId}/tracks/${trackId}?token=${sessionStorage.token}` 
+        : `${LIKED_SONGS_URL}/${trackId}?token=${sessionStorage.token}`;
+
     try {
-        const deleteUrl = playlistId ? `${PLAYLISTS_URL}/${playlistId}/tracks/${trackId}?token=${sessionStorage.token}` : `${LIKED_SONGS_URL}/${trackId}?token=${sessionStorage.token}`;
-
-        const response = await fetch(deleteUrl, {
-            method: 'DELETE'
-        });
-
+        const response = await fetch(deleteUrl, { method: 'DELETE' });
         if (response.ok) {
             trackData = trackData.filter(track => track.id !== trackId);
             renderPlaylist(trackData);
@@ -204,50 +174,32 @@ async function deleteTrack(trackId) {
 
 function renderPlaylist(tracks) {
     const container = $('#playlist-container');
-    if (container.length === 0) {
-        console.error("Error: Playlist container element not found.");
-        return;
-    }
+    if (!container.length) return;
 
-    container.html(tracks.map((track, index) => {
-
-        return `
-                    <div 
-                        data-id="${track.id}"
-                        class="song-row row mx-0 align-items-center py-2 rounded-lg cursor-pointer"
-                    >
-                        <div class="col-1 text-center text-secondary track-index">
-                            <span>${index + 1}</span>
-                            <div class="track-play-btn text-success h5 mb-0">
-                                <i class="bi bi-play-circle-fill"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="col-5 d-flex align-items-center min-w-0 pr-4">
-                            <img src="${track.albumImage || './assets/default-album.png'}" alt="${track.album}" class="rounded me-3" style="width: 40px; height: 40px; object-fit: cover;">
-                            <div class="d-flex flex-column min-w-0">
-                                <p class="mb-0 text-white fw-semibold text-truncate">${track.name}</p>
-                                <p class="mb-0 small text-secondary">${track.artist}</p>
-                            </div>
-                        </div>
-
-                        <div class="col-4 d-none d-sm-block small text-secondary text-truncate">
-                            ${track.album}
-                        </div>
-                        <div class="col-1 text-center">
-                            <button class="btn btn-link text-secondary p-0 delete-track-btn" data-id="${track.id}">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-
-                        <div class="col-1 small text-secondary text-end">
-                            ${formatDuration(track.durationMs)}
-                        </div>
-
-
-                    </div>
-                `;
-    }).join(''));
+    container.html(tracks.map((track, index) => `
+        <div data-id="${track.id}" class="song-row row mx-0 align-items-center py-2 rounded-lg cursor-pointer">
+            <div class="col-1 text-center text-secondary track-index">
+                <span>${index + 1}</span>
+                <div class="track-play-btn text-success h5 mb-0">
+                    <i class="bi bi-play-circle-fill"></i>
+                </div>
+            </div>
+            <div class="col-5 d-flex align-items-center min-w-0 pr-4">
+                <img src="${track.albumImage || './assets/default-album.png'}" alt="${track.album}" class="rounded me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                <div class="d-flex flex-column min-w-0">
+                    <p class="mb-0 text-white fw-semibold text-truncate">${track.name}</p>
+                    <p class="mb-0 small text-secondary">${track.artist}</p>
+                </div>
+            </div>
+            <div class="col-4 d-none d-sm-block small text-secondary text-truncate">${track.album}</div>
+            <div class="col-1 text-center">
+                <button class="btn btn-link text-secondary p-0 delete-track-btn" data-id="${track.id}">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+            <div class="col-1 small text-secondary text-end">${formatDuration(track.durationMs)}</div>
+        </div>
+    `).join(''));
 }
 
 function renderFullPlaylist() {
@@ -258,39 +210,24 @@ function initSpotifyPlayer(firstTrackId) {
     const element = $('#spotify-player-container')[0];
     if (!element || !iFrameAPI) return;
 
-    const options = {
-        width: '100%',
-        height: '96',
-        uri: `spotify:track:${firstTrackId}`
-    };
-
+    const options = { width: '100%', height: '96', uri: `spotify:track:${firstTrackId}` };
     currentTrackId = firstTrackId;
-    const callback = (Controller) => {
+
+    iFrameAPI.createController(element, options, (Controller) => {
         embedController = Controller;
-        // console.log("Spotify Embed Controller initialized.");
-
-    };
-
-    iFrameAPI.createController(element, options, callback);
+    });
 }
 
 function loadNewTrack(trackId) {
-    // console.log("Debug - Clicked Track ID:", trackId);
-    // if (!trackId || trackId === 'undefined') {
-    console.error("Error: Invalid Track ID");
-    //     return;
-    // }
+    if (!trackId) {
+        console.error("Error: Invalid Track ID");
+        return;
+    }
     if (embedController) {
         currentTrackId = trackId;
-        const trackUri = `spotify:track:${trackId}`;
-        // console.log("Debug - Loading URI:", trackUri);
-        embedController.loadUri(trackUri).then(() => {
-            // Start playing immediately after loading
+        embedController.loadUri(`spotify:track:${trackId}`).then(() => {
             embedController.togglePlay();
-            // console.log(`Loaded and started playing track: ${trackId}`);
-        }).catch(error => {
-            console.error("Error loading track in Spotify player:", error);
-        });
+        }).catch(error => console.error("Error loading track in Spotify player:", error));
     } else {
         console.error("Player controller not yet initialized.");
     }

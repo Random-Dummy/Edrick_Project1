@@ -15,7 +15,7 @@ $(function () {
     }
 
     // Initialize logout button if exists
-    $('#logout-btn').on('click', function(e) {
+    $('#logoutbutton').on('click', function (e) {
         e.preventDefault();
         logout();
     });

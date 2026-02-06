@@ -1,41 +1,69 @@
-$(function () {
+$(document).ready(function () {
+    console.log("✅ Profile page loaded");
+
+    if (!sessionStorage.token) {
+        console.warn("No token found, redirecting to login");
+        window.location.href = "login.html";
+        return;
+    }
+
     getUserEmail();
     checkSpotifyConnection();
-    $('#connect-spotify-btn').on('click', getAuthURL);
 
-
+    $('#connect-spotify-btn').on('click', function (e) {
+        e.preventDefault();
+        getAuthURL();
+    });
 
     $('#profile-form').on('submit', function (e) {
         e.preventDefault();
         updateProfile();
     });
+
+    $('#logoutbutton').on('click', function () {
+        sessionStorage.clear();
+        window.location.href = "login.html";
+    });
 });
 
-// Get Auth URL to connect to Spotify for user login
-async function getAuthURL(e) {
-    e.preventDefault();
-    try {
-        const response = await fetch(`${SPOTIFY_LOGGED_IN}/connect?token=${sessionStorage.token}`);
-        const data = await response.json()
-        if (response.ok) {
-            window.location.href = data.url;
-        }
-        else {
-            console.error(data.message);
-            showMessage(data.message, 'error');
+/* =======================
+   Spotify Auth
+======================= */
+async function getAuthURL() {
+    console.log("🎧 Connecting to Spotify...");
 
+    try {
+        const response = await fetch(
+            `${SPOTIFY_LOGGED_IN}/connect?token=${sessionStorage.token}`
+        );
+
+        const data = await response.json();
+        console.log("Spotify connect response:", data);
+
+        if (response.ok && data.url) {
+            window.location.href = data.url;
+        } else {
+            showMessage(data.message || "Spotify connection failed", "error");
         }
     } catch (error) {
-        console.error('Error connecting to Spotify:', error);
-        showMessage('Error connecting to Spotify', 'error');
+        console.error("Spotify auth error:", error);
+        showMessage("Error connecting to Spotify", "error");
     }
 }
 
-// Check if user is connected to Spotify and display stats if connected
+/* =======================
+   Spotify Stats
+======================= */
 async function checkSpotifyConnection() {
+    console.log("🔍 Checking Spotify connection...");
+
     try {
-        const response = await fetch(`${SPOTIFY_LOGGED_IN}/stats?token=${sessionStorage.token}`);
+        const response = await fetch(
+            `${SPOTIFY_LOGGED_IN}/stats?token=${sessionStorage.token}`
+        );
+
         const data = await response.json();
+        console.log("Spotify stats:", data);
 
         if (data.connected && data.success) {
             $('#spotify-connect-section').hide();
@@ -46,123 +74,120 @@ async function checkSpotifyConnection() {
             $('#spotify-stats-section').hide();
         }
     } catch (error) {
-        console.log("Not connected or error fetching stats");
+        console.warn("Spotify not connected:", error);
+        $('#spotify-connect-section').show();
+        $('#spotify-stats-section').hide();
     }
 }
 
-// Format and display user stats
 function displayStats(stats) {
-    $('#hours-played-count').text(stats.hoursPlayed || '0');
+    $('#hours-played-count').text(stats?.hoursPlayed || 0);
 
-    const monthTracksHtml = stats.topTracksMonth.map((track, index) => createTrackItem(track, index)).join('');
-    $('#top-tracks-month-list').html(monthTracksHtml);
+    $('#top-tracks-month-list').html(
+        (stats?.topTracksMonth || []).map(createTrackItem).join("")
+    );
 
-    const allTimeTracksHtml = stats.topTracksAllTime.map((track, index) => createTrackItem(track, index)).join('');
-    $('#top-tracks-alltime-list').html(allTimeTracksHtml);
+    $('#top-tracks-alltime-list').html(
+        (stats?.topTracksAllTime || []).map(createTrackItem).join("")
+    );
 
-    const artistsHtml = stats.topArtistsAllTime.map((artist, index) => 
-        `<li class="stat-item">
-            <span class="stat-number">${index + 1}</span>
-            <img src="${artist.image || './assets/default-album.png'}" alt="${artist.name}" class="stat-img rounded-circle">
-            <div class="stat-info">
-                <a href="${artist.url}" target="_blank" class="stat-name">${artist.name}</a>
-            </div>
-         </li>`
-    ).join('');
-    $('#top-artists-alltime-list').html(artistsHtml);
+    $('#top-artists-alltime-list').html(
+        (stats?.topArtistsAllTime || []).map((artist, i) => `
+            <li class="stat-item">
+                <span class="stat-number">${i + 1}</span>
+                <img src="${artist.image || './assets/default-album.png'}" class="stat-img rounded-circle">
+                <div class="stat-info">
+                    <a href="${artist.url}" target="_blank">${artist.name}</a>
+                </div>
+            </li>
+        `).join("")
+    );
 }
 
-// Helper to create track list item
 function createTrackItem(track, index) {
-    return `<li class="stat-item">
-        <span class="stat-number">${index + 1}</span>
-        <img src="${track.image || './assets/default-album.png'}" alt="${track.album}" class="stat-img">
-        <div class="stat-info">
-            <a href="${track.url}" target="_blank" class="stat-name">${track.name}</a>
-            <span class="stat-artist">${track.artist}</span>
-        </div>
-     </li>`;
+    return `
+        <li class="stat-item">
+            <span class="stat-number">${index + 1}</span>
+            <img src="${track.image || './assets/default-album.png'}" class="stat-img">
+            <div class="stat-info">
+                <a href="${track.url}" target="_blank">${track.name}</a>
+                <span>${track.artist}</span>
+            </div>
+        </li>
+    `;
 }
 
-// Function to get user email
+/* =======================
+   Profile
+======================= */
 async function getUserEmail() {
     try {
-        // First, let's get the user ID using the token
-        const userResponse = await fetch(`${BASE_URL}/api/users?token=${sessionStorage.token}`);
+        const response = await fetch(
+            `${BASE_URL}/api/users?token=${sessionStorage.token}`
+        );
 
-        if (!userResponse.ok) {
-            throw new Error('Failed to fetch user information');
-        }
+        if (!response.ok) throw new Error("User fetch failed");
 
-        const userData = await userResponse.json();
+        const user = await response.json();
+        console.log("User data:", user);
 
-        $('#email').val(userData.email);
-        $('#username').val(userData.username || '');
-
+        $('#email').val(user.email);
+        $('#username').val(user.username || "");
     } catch (error) {
-        console.error('Error fetching user email:', error);
+        console.error("Profile load error:", error);
+        showMessage("Failed to load profile", "error");
     }
 }
 
-// Function to update user profile
 async function updateProfile() {
     const username = $('#username').val().trim();
     const password = $('#password').val();
     const confirmPassword = $('#confirm-password').val();
 
-    // Validate input
     if (!username) {
-        showMessage('Username is required', 'error');
+        showMessage("Username is required", "error");
         return;
     }
 
     if (password && password !== confirmPassword) {
-        showMessage('Passwords do not match', 'error');
+        showMessage("Passwords do not match", "error");
         return;
     }
 
+    const payload = { username };
+    if (password) payload.password = password;
+
     try {
-        const updateData = { username };
-
-        // Only include password if it's provided
-        if (password) {
-            updateData.password = password;
-        }
-
-        const response = await fetch(`${BASE_URL}/api/users?token=${sessionStorage.token}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updateData)
-        });
+        const response = await fetch(
+            `${BASE_URL}/api/users?token=${sessionStorage.token}`,
+            {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }
+        );
 
         const result = await response.json();
+        console.log("Update profile response:", result);
 
         if (response.ok) {
-            showMessage('Profile updated successfully!', 'success');
-            // Clear password fields
-            $('#password').val('');
-            $('#confirm-password').val('');
+            showMessage("Profile updated successfully!", "success");
+            $('#password, #confirm-password').val("");
         } else {
-            showMessage(result.message || 'Failed to update profile', 'error');
+            showMessage(result.message || "Update failed", "error");
         }
     } catch (error) {
-        console.error('Error updating profile:', error);
-        showMessage('Error updating profile', 'error');
+        console.error("Profile update error:", error);
+        showMessage("Server error updating profile", "error");
     }
 }
 
-
+/* =======================
+   Messages
+======================= */
 function showMessage(message, type) {
-    const messageArea = $('#message-area');
-    messageArea.text(message);
-    messageArea.removeClass('success error');
-    messageArea.addClass(type);
+    const el = $('#message-area');
+    el.text(message).removeClass().addClass(`message-area ${type}`);
 
-    // Clear message after 5 seconds
-    setTimeout(() => {
-        messageArea.text('');
-        messageArea.removeClass('success error');
-    }, 5000);
+    setTimeout(() => el.text("").removeClass(type), 5000);
 }
