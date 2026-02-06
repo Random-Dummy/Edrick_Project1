@@ -7,7 +7,7 @@ $(document).ready(function () {
         return;
     }
 
-    getUserEmail();
+    getUserProfile();
     checkSpotifyConnection();
 
     $('#connect-spotify-btn').on('click', function (e) {
@@ -33,15 +33,12 @@ async function getAuthURL() {
     console.log("🎧 Connecting to Spotify...");
 
     try {
-        const response = await fetch(
-            `${SPOTIFY_LOGGED_IN}/connect?token=${sessionStorage.token}`
-        );
-
+        const response = await fetch(`${BASE_URL}/spotify/connect?token=${sessionStorage.token}`);
         const data = await response.json();
         console.log("Spotify connect response:", data);
 
         if (response.ok && data.url) {
-            window.location.href = data.url;
+            window.location.href = data.url; // <-- redirect
         } else {
             showMessage(data.message || "Spotify connection failed", "error");
         }
@@ -58,14 +55,11 @@ async function checkSpotifyConnection() {
     console.log("🔍 Checking Spotify connection...");
 
     try {
-        const response = await fetch(
-            `${SPOTIFY_LOGGED_IN}/stats?token=${sessionStorage.token}`
-        );
-
+        const response = await fetch(`${BASE_URL}/spotify/stats?token=${sessionStorage.token}`);
         const data = await response.json();
         console.log("Spotify stats:", data);
 
-        if (data.connected && data.success) {
+        if (data.success && data.connected) {
             $('#spotify-connect-section').hide();
             $('#spotify-stats-section').show();
             displayStats(data.stats);
@@ -120,10 +114,10 @@ function createTrackItem(track, index) {
 /* =======================
    Profile
 ======================= */
-async function getUserEmail() {
+async function getUserProfile() {
     try {
         const response = await fetch(
-            `${BASE_URL}/api/users?token=${sessionStorage.token}`
+            `${BASE_URL}/user?token=${sessionStorage.token}`
         );
 
         if (!response.ok) throw new Error("User fetch failed");
@@ -131,8 +125,12 @@ async function getUserEmail() {
         const user = await response.json();
         console.log("User data:", user);
 
-        $('#email').val(user.email);
-        $('#username').val(user.username || "");
+        if (user.success) {
+            $('#email').val(user.email);
+            $('#username').val(user.username || "");
+        } else {
+            showMessage(user.message || "Failed to load profile", "error");
+        }
     } catch (error) {
         console.error("Profile load error:", error);
         showMessage("Failed to load profile", "error");
@@ -159,7 +157,7 @@ async function updateProfile() {
 
     try {
         const response = await fetch(
-            `${BASE_URL}/api/users?token=${sessionStorage.token}`,
+            `${BASE_URL}/user?token=${sessionStorage.token}`,
             {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -170,7 +168,7 @@ async function updateProfile() {
         const result = await response.json();
         console.log("Update profile response:", result);
 
-        if (response.ok) {
+        if (response.ok && result.success) {
             showMessage("Profile updated successfully!", "success");
             $('#password, #confirm-password').val("");
         } else {

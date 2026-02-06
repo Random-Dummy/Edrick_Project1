@@ -37,7 +37,7 @@ refreshAccessToken().catch(console.error);
 
 const spotifyService = {
     // Login to user's spotify account
-    createAuthURL(userId) {
+    getAuthURL(userId) {
         const scopes = ['user-top-read', 'user-read-private', 'user-read-email', 'user-read-recently-played'];
         const state = userId.toString();
         // Create a temporary instance to generate URL

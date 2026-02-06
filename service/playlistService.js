@@ -42,7 +42,6 @@ let playlistService = {
 
     async getPlaylist(userId) {
         try {
-            // FIXED: Changed user to creator to match schema
             const playlists = await playlist.find({ creator: userId });
             return playlists;
         } catch (error) {

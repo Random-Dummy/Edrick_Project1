@@ -25,27 +25,23 @@ router.use(express.json());
 
 // USER STUFF ===============================================================================================================
 function authenticationCheck(req, res, next) {
-    //check if query token is in the url
     let token = req.query.token;
     if (!token) {
-        res.status(401).json({ "message": "No tokens are provided." });
-    } else {
-        userService.checkToken(token)
-            .then(function (response) {
-                //Matched token in the db, proceed with the request
-                if (response) {
-                    //response = user who is logged in.
-                    // store the user's id in local memory to be used in the route handler
-                    res.locals.userId = response._id;
-                    next();
-                } else {
-                    res.status(401).json({ "message": "Invalid token provided." });
-                }
-            })
-            .catch(function (error) {
-                res.status(500).json({ "message": error.message });
-            });
-    }
+        return res.status(401).json({ "message": "No tokens are provided." });
+    } 
+
+    userService.checkToken(token)
+        .then(function (response) {
+            if (response) {
+                res.locals.userId = response._id;
+                next();
+            } else {
+                return res.status(401).json({ "message": "Invalid token provided." });
+            }
+        })
+        .catch(function (error) {
+            return res.status(500).json({ "message": error.message });
+        });
 }
 
 // Login
@@ -99,10 +95,11 @@ router.post('/user/register', async function (req, res) {
         });
 });
 
-router.get('/user', async function (req, res) {
+router.get('/user', authenticationCheck, async function (req, res) {
     try {
         const userId = res.locals.userId;
-        const userData = await user.getUserById(userId);
+        const userData = await userService.getUserbyId(userId);
+        console.log("Fetched userData:", userData); // <-- add this
         if (!userData) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -113,7 +110,7 @@ router.get('/user', async function (req, res) {
             userpicture: userData.userpicture
         });
     } catch (error) {
-        console.error('Error getting user information:', error.message);
+        console.error('Error getting user information:', error);
         res.status(500).json({ message: "Failed to get user information: " + error.message });
     }
 });
@@ -293,10 +290,10 @@ router.get('/liked-songs/with-lyrics', authenticationCheck, async function (req,
         });
 });
 
-router.get('/api/liked-songs', async function (req, res) {
+router.get('/liked-songs', authenticationCheck, async function (req, res) {
     try {
         const userId = res.locals.userId;
-        const result = await LikedSongService.getUserLikedSongs(userId);
+        const result = await likedSongService.getUserLikedSongs(userId);
         if (result.success) {
             res.status(200).json({
                 success: true,
@@ -443,6 +440,58 @@ router.get('/spotify/track/:trackId', authenticationCheck, async function (req, 
             console.error("Error getting track details:", error.message);
             res.status(500).json({ "message": error.message });
         });
+});
+
+// Spotify Connect (OAuth redirect)
+// Redirect user to Spotify login
+router.get('/spotify/connect', authenticationCheck, (req, res) => {
+    try {
+        const userId = res.locals.userId;
+        const authURL = spotifyService.getAuthURL(userId); // ensure spotifyService has getAuthURL
+        res.json({ success: true, url: authURL });
+    } catch (error) {
+        console.error("Error in /spotify/connect:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Spotify OAuth callback
+router.get('/spotify/callback', async (req, res) => {
+    const { code, state } = req.query; // state = userId
+    if (!code || !state) {
+        return res.status(400).send("Invalid callback parameters");
+    }
+
+    try {
+        const tokens = await spotifyService.authorizeUser(code);
+
+        // Save Spotify tokens in DB
+        await userService.saveSpotifyTokens(state, tokens.accessToken, tokens.refreshToken);
+
+        res.redirect(`/profile.html?spotify=connected`);
+    } catch (err) {
+        console.error("Spotify callback error:", err.message);
+        res.redirect(`/profile.html?spotify=error`);
+    }
+});
+
+// Spotify Stats
+// Spotify Stats
+router.get('/spotify/stats', authenticationCheck, async (req, res) => {
+    try {
+        const userId = res.locals.userId;
+        // Get the user's Spotify refresh token from DB
+        const refreshToken = await userService.getSpotifyRefreshToken(userId);
+        if (!refreshToken) {
+            return res.json({ success: true, connected: false });
+        }
+        // Fetch Spotify stats using the refresh token
+        const stats = await spotifyService.getUserStats(refreshToken);
+        res.json({ success: true, connected: true, stats });
+    } catch (error) {
+        console.error("Error fetching Spotify stats:", error.message);
+        res.status(500).json({ success: false, message: "Failed to fetch Spotify stats" });
+    }
 });
 
 module.exports = router;

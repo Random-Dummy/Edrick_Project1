@@ -18,5 +18,5 @@ const LIKED_SONGS_URL = `${BASE_URL}/liked-songs`;
 const USERS_URL = `${BASE_URL}/user`;
 
 // Logged into spotify account
-const SPOTIFY_LOGGED_IN = `${BASE_URL}/api/spotify`;
+const SPOTIFY_LOGGED_IN = `${BASE_URL}/spotify`;
 const CALLBACK = `${BASE_URL}/spotify/api/callback`;

@@ -68,7 +68,7 @@ $(async function () {
             else if (album.includes(searchTerm)) score += 10;
             return { ...track, score };
         }).filter(track => track.score > 0)
-          .sort((a, b) => b.score - a.score);
+            .sort((a, b) => b.score - a.score);
 
         const filteredTracks = scoredTracks.map(({ score, ...track }) => track);
         renderPlaylist(filteredTracks);
@@ -97,19 +97,30 @@ $(async function () {
     }
 
     // Fetch tracks
-    const url = playlistId 
-        ? `${PLAYLISTS_URL}/${playlistId}/tracks?token=${sessionStorage.token}` 
+    const url = playlistId
+        ? `${PLAYLISTS_URL}/${playlistId}/tracks?token=${sessionStorage.token}`
         : `${LIKED_SONGS_URL}?token=${sessionStorage.token}`;
 
     try {
         const response = await fetch(url);
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `Error fetching playlist: ${response.statusText}`);
+
+        const contentType = response.headers.get('content-type');
+        let jsonData;  // renamed from 'data'
+
+        if (contentType && contentType.includes('application/json')) {
+            jsonData = await response.json();  // assign, not redeclare
+        } else {
+            const text = await response.text();
+            console.error("Expected JSON but got:", text);
+            throw new Error("Server did not return JSON");
         }
 
-        const data = await response.json();
-        const tracks = data.tracks || data.likedSongs;
+        if (!response.ok) {
+            throw new Error(jsonData?.message || `Error fetching playlist: ${response.statusText}`);
+        }
+
+        // Use jsonData instead of data
+        const tracks = jsonData.tracks || jsonData.likedSongs;
         if (tracks) {
             trackData = tracks.map(track => ({
                 id: track.spotifyTrackId,
@@ -154,8 +165,8 @@ function formatDuration(ms) {
 async function deleteTrack(trackId) {
     if (!confirm("Are you sure you want to remove this track?")) return;
 
-    const deleteUrl = playlistId 
-        ? `${PLAYLISTS_URL}/${playlistId}/tracks/${trackId}?token=${sessionStorage.token}` 
+    const deleteUrl = playlistId
+        ? `${PLAYLISTS_URL}/${playlistId}/tracks/${trackId}?token=${sessionStorage.token}`
         : `${LIKED_SONGS_URL}/${trackId}?token=${sessionStorage.token}`;
 
     try {
