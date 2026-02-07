@@ -169,7 +169,6 @@ function displaySearchResults(tracks) {
     });
 }
 
-
 // Open modal to select playlist for adding track
 async function openPlaylistModal(trackId) {
     let modal = $("#playlist-modal");
@@ -251,7 +250,7 @@ async function addTrackToPlaylist(trackId, playlistId) {
         const data = await response.json();
 
         if (response.ok) {
-            showNotification(data.message || "Track added to playlist 🎶", 'success');
+            showNotification(data.message || "Track added to playlist", 'success');
         } else {
             showNotification(data.message || "Failed to add track", 'error');
         }
@@ -495,7 +494,7 @@ async function addToLikedSongs(trackId) {
         console.log("Response JSON:", data);
 
         if (response.ok && data.success) {
-            showNotification(data.message || "Added to Liked Songs ❤️", 'success');
+            showNotification(data.message || "Added to Liked Songs", 'success');
             loadLikedSongsCount();
         } else {
             console.warn("Failed to add track. Backend response indicates failure.");
@@ -533,10 +532,14 @@ function displayPlaylists(playlists) {
                         <p class="card-subtitle">${playlist.tracks ? playlist.tracks.length : 0} Tracks</p>
                     </div>
                 </a>
-                <div class="playlist-actions position-absolute top-0 end-0 m-1 d-flex gap-1">
-                    <button class="btn btn-sm btn-outline-primary btn-edit-playlist" title="Edit Playlist"><i class="fa fa-edit"></i></button>
-                    <button class="btn btn-sm btn-outline-danger btn-delete-playlist" title="Delete Playlist"><i class="fa fa-trash"></i></button>
-                </div>
+                <div class="playlist-actions-bottom">
+    <button class="btn btn-sm btn-playlist-action btn-edit-playlist" title="Edit Playlist">
+        <i class="fa fa-edit"></i>
+    </button>
+    <button class="btn btn-sm btn-playlist-action btn-delete-playlist" title="Delete Playlist">
+        <i class="fa fa-trash"></i>
+    </button>
+</div>
             </div>
         `);
 
