@@ -1,0 +1,48 @@
+[{
+  "_id": {
+    "$oid": "69821f44c1ea1f1bb271269f"
+  },
+  "username": "test1",
+  "email": "Random1",
+  "password": "test1",
+  "createdAt": {
+    "$date": "2026-02-03T16:16:04.226Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-06T17:04:50.312Z"
+  },
+  "__v": 0,
+  "token": "85c5259b9483639043d17336ad96a781"
+},
+{
+  "_id": {
+    "$oid": "698231ec25ea3594f2d59c4a"
+  },
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "password123",
+  "createdAt": {
+    "$date": "2026-02-03T17:35:40.285Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-06T10:38:34.763Z"
+  },
+  "__v": 0,
+  "token": "8edcd27bc8105eb47af0265e3d1471a0"
+},
+{
+  "_id": {
+    "$oid": "6985c8a277d948418a122fb6"
+  },
+  "username": "test3",
+  "email": "random@test.com",
+  "password": "spyder123",
+  "createdAt": {
+    "$date": "2026-02-06T10:55:30.552Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-08T07:51:32.616Z"
+  },
+  "__v": 0,
+  "token": "d90c86c58cc41b3b2a2270ce9563e738"
+}]

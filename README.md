@@ -75,10 +75,9 @@ Write down clearly what are the things the user can perform with your web applic
 Describe which external APIs that you would like to use and how you would use them. Put the reference links where you found the APIs.
 
 ### **1. Spotify Web API**
+Used to:
 - Search songs, albums, and artists  
 - Fetch track details including duration, preview URL, etc.  
-
----
 
 ### **2. Genius Lyrics API**  
 Used to:
@@ -95,12 +94,28 @@ Used for:
 - Searching music directly via built-in functions  
 - Fetching track/artist/album metadata
 
-### **2. axios**
-
+### **2. mongoose**
 Used for:
-- Making GET requests to Genius Lyric APIs  
-- Handling external API responses and errors  
-- Simplifying API calls and responses
+- Connecting to MongoDB database  
+- Defining models for users, songs, and playlists  
+- Storing and retrieving data from the database
+
+### **3. dotenv**
+Used for:
+- Loading environment variables from a .env file  
+- Accessing API keys and other sensitive information securely
+
+### **4. cheerio**
+Used for:
+- Parsing HTML content  
+- Selecting and manipulating elements in the DOM  
+- Extracting data from HTML pages
+
+### **5. axios**
+Used for:
+- Making GET requests to Genius Lyrics API  
+- Handling external API responses and errors
+---
 
 ## References
 Put all the reference links where you have used for your project<br>

@@ -1,0 +1,44 @@
+[{
+  "_id": {
+    "$oid": "698618aada45bb8f001221a8"
+  },
+  "tracks": [
+    {
+      "spotifyTrackId": "4I01JiotzjG0twezQt1xqX",
+      "name": "Testimony",
+      "artist": "Terrian",
+      "album": "Testimony",
+      "durationMs": 242088,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+      "_id": {
+        "$oid": "69863496f5fa7ceb95103809"
+      }
+    },
+    {
+      "spotifyTrackId": "6v8fX5yXd15H3xSyvVvJ5e",
+      "name": "ラグトレイン",
+      "artist": "稲葉曇",
+      "album": "ラグトレイン",
+      "durationMs": 251428,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b2737c969c62de7105a727045529",
+      "_id": {
+        "$oid": "698637dc02f40fba8f91c039"
+      }
+    },
+    {
+      "spotifyTrackId": "2297mxrYLBAC4XkhXs39If",
+      "name": "Armed & Dangerous",
+      "artist": "King Von",
+      "album": "Welcome to O'Block",
+      "durationMs": 122680,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b273429d4b3d9261b9ccc24d7d36",
+      "_id": {
+        "$oid": "698637f002f40fba8f91c074"
+      }
+    }
+  ],
+  "user": {
+    "$oid": "6985c8a277d948418a122fb6"
+  },
+  "__v": 6
+}]

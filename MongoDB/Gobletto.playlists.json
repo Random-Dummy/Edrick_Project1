@@ -1,0 +1,88 @@
+[{
+  "_id": {
+    "$oid": "69822fbd331ce8a9aa27e424"
+  },
+  "name": "My Chill Mix",
+  "creator": {
+    "$oid": "6985c8a277d948418a122fb6"
+  },
+  "tracks": [
+    {
+      "spotifyTrackId": "5XGvJoSHGzJ1elgLZgviJK",
+      "name": "Blinding Lights",
+      "artist": "The Weeknd",
+      "album": "After Hours",
+      "durationMs": 200000,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b2738863bc11d2aa12b54f5aeb36",
+      "_id": {
+        "$oid": "69822fbd331ce8a9aa27e425"
+      }
+    },
+    {
+      "spotifyTrackId": "4I01JiotzjG0twezQt1xqX",
+      "name": "Testimony",
+      "artist": "Terrian",
+      "album": "Testimony",
+      "durationMs": 242088,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+      "_id": {
+        "$oid": "69863e096732392c78c3efee"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2026-02-03T17:26:21.589Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-06T20:04:30.443Z"
+  },
+  "__v": 1,
+  "description": "Chillax"
+},
+{
+  "_id": {
+    "$oid": "698635a491e4aa40125da7ff"
+  },
+  "name": "test",
+  "creator": {
+    "$oid": "6985c8a277d948418a122fb6"
+  },
+  "tracks": [
+    {
+      "spotifyTrackId": "1chmVQLbEPT5890S0X55pe",
+      "name": "TEST ME",
+      "artist": "CHANMINA",
+      "album": "TEST ME",
+      "durationMs": 171482,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b273af62372ee43fe1e854d0bce5",
+      "_id": {
+        "$oid": "69864447ae3127fa7a560636"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2026-02-06T18:40:36.483Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-06T19:43:03.393Z"
+  },
+  "__v": 1
+},
+{
+  "_id": {
+    "$oid": "69884088a2d91873d5157045"
+  },
+  "name": "Yeah",
+  "description": "O@ok",
+  "creator": {
+    "$oid": "6985c8a277d948418a122fb6"
+  },
+  "tracks": [],
+  "createdAt": {
+    "$date": "2026-02-08T07:51:36.454Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-08T07:51:41.264Z"
+  },
+  "__v": 0
+}]
