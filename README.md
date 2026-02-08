@@ -13,7 +13,9 @@ Gobletto allows you to manage your music from spotify, giving you the ability to
 To install & run this project, follow the steps below
 
 1. Clone the repository
-```bash git clone
+```bash 
+git clone https://github.com/Random-Dummy/Edrick_Project1
+cd 
 ---
 
 ## Key Features
