@@ -81,20 +81,40 @@ let playlistService = {
             const findPlaylist = await playlist.findOne({ _id: playlistId, creator: userId });
             if (!findPlaylist) throw new Error("Playlist not found");
 
-            const trackExist = findPlaylist.tracks.some(t => t.spotifyTrackId === track.spotifyTrackId);
-            if (trackExist) throw new Error("Track already exists in playlist");
+            // Debug log to see what track data we're receiving
+            console.log("Received track data:", track);
 
-            findPlaylist.tracks.push({
-                spotifyTrackId: track.spotifyTrackId,
-                name: track.name,
-                artist: track.artist,
-                album: track.album || track.albumName || '', // Added fallback for album name
-                durationMs: track.durationMs || track.duration || 0,
-                albumImage: track.albumImage || track.image || '' // Added fallback for album image
+            // Extract the correct ID field
+            const spotifyTrackId = track.spotifyTrackId || track.id || track.spotify_track_id;
+
+            if (!spotifyTrackId) {
+                throw new Error("Missing Spotify track ID");
+            }
+
+            const trackExist = findPlaylist.tracks.some(t => {
+                // Check both possible ID fields
+                return (t.spotifyTrackId === spotifyTrackId) || (t.id === spotifyTrackId);
             });
 
+            if (trackExist) throw new Error("Track already exists in playlist");
+
+            // Create properly formatted track object
+            const formattedTrack = {
+                spotifyTrackId: spotifyTrackId,
+                name: track.name || 'Unknown Track',
+                artist: track.artist || 'Unknown Artist',
+                album: track.album || track.albumName || '',
+                durationMs: track.durationMs || track.duration || 0,
+                albumImage: track.albumImage || track.image || track.album_image || ''
+            };
+
+            // Log the formatted track for debugging
+            console.log("Formatted track for playlist:", formattedTrack);
+
+            findPlaylist.tracks.push(formattedTrack);
             await findPlaylist.save();
-            return `Track ${track.name} added successfully`;
+
+            return `Track ${formattedTrack.name} added successfully`;
         } catch (error) {
             console.error("Error adding track:", error.message);
             throw new Error(error.message);

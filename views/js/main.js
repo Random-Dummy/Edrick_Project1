@@ -236,14 +236,45 @@ async function openPlaylistModal(trackId) {
 // Add a track to a specific playlist
 async function addTrackToPlaylist(trackId, playlistId) {
     try {
+        // First get the track details from the search results or fetch from Spotify
+        const trackElement = $(`.track-card[data-track-id="${trackId}"]`);
+
+        let trackData;
+
+        if (trackElement.length) {
+            // Extract from the DOM element if available
+            const name = trackElement.find('.card-title').text();
+            const artist = trackElement.find('.card-subtitle').text();
+            const albumImage = trackElement.find('.card-image').css('background-image').replace(/url\(['"]?(.*?)['"]?\)/, '$1');
+
+            trackData = {
+                spotifyTrackId: trackId,
+                name: name,
+                artist: artist,
+                albumImage: albumImage
+            };
+        } else {
+            // Fallback: fetch from Spotify API
+            const trackResponse = await fetch(
+                `${BASE_URL}/spotify/track/${trackId}?token=${sessionStorage.token}`
+            );
+
+            if (!trackResponse.ok) {
+                throw new Error('Failed to fetch track details');
+            }
+
+            const result = await trackResponse.json();
+            trackData = result.track || result;
+        }
+
+        console.log("Sending track data to backend:", trackData);
+
         const response = await fetch(
             `${PLAYLISTS_URL}/${playlistId}/tracks?token=${sessionStorage.token}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    spotifyTrackId: trackId
-                })
+                body: JSON.stringify(trackData)
             }
         );
 
@@ -257,7 +288,7 @@ async function addTrackToPlaylist(trackId, playlistId) {
 
     } catch (error) {
         console.error("Error adding track to playlist:", error);
-        showNotification("Error adding track to playlist", 'error');
+        showNotification("Error adding track to playlist: " + error.message, 'error');
     }
 }
 
