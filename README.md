@@ -63,9 +63,10 @@ Write down clearly what are the things the user can perform with your web applic
 - **CRUD Operations** - Create, Read, Update, Delete songs, playlist & user in the database
 
 ### Advanced Features
-- **Lyrics Fetching** - Fetch lyrics for a selected song using Genius Lyrics API & Lyrics.ovh
+- **Display Lyrics** - Display lyrics for a selected song using Genius Lyrics API & Lyrics.ovh
 - **Liked Songs** - Users can like songs and view their liked songs
-- **Playlist
+- **Metadata Storage** - Store spotify track details & lyrics inside database when searched
+-- **User Playlist Management** - Users can edit the the order of their playlist & update details accordingly
 ---
 
 ## API Routes
@@ -104,9 +105,12 @@ Used for:
 ## References
 Put all the reference links where you have used for your project<br>
 https://developer.spotify.com/documentation/web-api <br>
-https://rapidapi.com/Glavier/api/genius-song-lyrics1 <br>
+https://docs.genius.com/#/getting-started-h1 <br>
 https://github.com/thelinmichael/spotify-web-api-node <br>
+https://lyricsovh.docs.apiary.io/ <br>
+https://cheerio.js.org/docs/intro/ <br>
 https://axios-http.com/docs/intro <br>
+https://www.npmjs.com/package/dotenv <br>
 <br>
 :warning: This repository includes gitignore file which will not commit certain files or folders (especially node_modules folder) for a node.js project into the repository.  
 **Please do not remove the .gitignore file as it will help to minimize the size of the project in the repository.** 
