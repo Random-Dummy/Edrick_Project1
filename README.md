@@ -58,16 +58,12 @@ This project uses the following Node.js Modules:
 Write down clearly what are the things the user can perform with your web application.<br>
 
 ### Basic Features
-- **User Registration**
-- **User Login**
-- **User Logout**
+- **User Registration, Login & Logout** - User Authentication & session management
 - **Search Songs** – Search tracks using Spotify API
+- **CRUD Operations** - Create, Read, Update, Delete songs, playlist & user in the database
 
 ### Advanced Features
-- **User Playlist Management** - Control and manage your playlists via Spotify API
-- **Auto-store Song Metadata** – Store Spotify track details automatically in the database.
-  - Store Spotify song details automatically inside the database 
-- **Lyrics Fetching** – Search and display song lyrics using Genius Lyrics API via RapidAPI.
+* yeah
 ---
 
 ## API Routes
