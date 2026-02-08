@@ -8,7 +8,6 @@ Why do you want to build this web application? <br>
 
 Gobletto allows you to manage your music from spotify, giving you the ability to search for songs, view lyrics, and manage your playlists. It also allows you to save your favourite songs and view them later. It aims to be the application you use to help you manage your music collection, giving you easy & quick access to the music you need for your needs, whether it'd be for editing or a deep delve review into the lyrics.
 
-
 ## Set Up & Installation
 To install & run this project, follow the steps below
 

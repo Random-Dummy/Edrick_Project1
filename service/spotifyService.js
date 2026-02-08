@@ -161,7 +161,7 @@ const spotifyService = {
             // Top Artists all time
             const topArtistsAllTime = await userApi.getMyTopArtists({ limit: 15, time_range: 'long_term' });
 
-            // Helper to format track data
+            // Format track data
             const formatTrack = (track) => ({
                 name: track.name,
                 artist: track.artists.map(a => a.name).join(', '),
