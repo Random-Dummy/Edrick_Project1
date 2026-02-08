@@ -63,7 +63,9 @@ Write down clearly what are the things the user can perform with your web applic
 - **CRUD Operations** - Create, Read, Update, Delete songs, playlist & user in the database
 
 ### Advanced Features
-* yeah
+- **Lyrics Fetching** - Fetch lyrics for a selected song using Genius Lyrics API & Lyrics.ovh
+- **Liked Songs** - Users can like songs and view their liked songs
+- **Playlist
 ---
 
 ## API Routes
