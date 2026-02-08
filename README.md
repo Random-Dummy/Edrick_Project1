@@ -35,11 +35,24 @@ GENIUS_ACCESS_TOKEN=GENIUS_ACCESS_TOKEN
 
 4. Run the application
 ```bash 
-npm server.js
+node server.js
 ```
 
 5. Access the application at http://localhost:3000
 ---
+
+### Dependencies Used
+This project uses the following Node.js Modules:
+
+- **axios** (^1.13.2) - Promise-based HTTP client for making requests to external APIs
+- **dotenv** (^17.2.3) - Loads environment variables from a .env file
+- **express** (^5.1.0) - Fast, unopinionated, minimalist web framework for Node.js
+- **init** (^0.1.2) - Utility for initializing projects
+- **mongoose** (^9.0.0) - MongoDB object modeling tool designed to work in an asynchronous environment
+- **nodemon** (^3.1.11) - Tool that helps develop Node.js based applications by automatically restarting the node application when file changes in the directory are detected
+- **spotify-web-api-node** (^5.0.2) - Node.js wrapper for Spotify's Web API
+- **cors** (^2.8.5) - Cross-origin resource sharing middleware
+- **cheerio** (^1.0.0-rc.12) - HTML parsing/jQuery-like library
 
 ## Key Features
 Write down clearly what are the things the user can perform with your web application.<br>
