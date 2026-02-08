@@ -4,16 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spooftify</title>
-
+    <title>Liked Songs</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/playlist.css">
 </head>
-
 <body>
     <header class="navbar">
         <div class="logo">
@@ -25,7 +22,6 @@
             <a href="login.html" class="auth-btn">Logout</a>
         </nav>
     </header>
-
     <div class="container-fluid pt-4 pb-4">
         <div class="row" id="main-row">
             <div class="col-12 col-md-10 col-lg-8 mx-auto transition-all" id="playlist-column">
@@ -33,7 +29,6 @@
                 <div class="mb-4">
                     <input type="text" id="search-bar" class="form-control" placeholder="Search in playlist...">
                 </div>
-
                 <!-- Playlist Header Section -->
                 <header class="bg-dark p-4 rounded-xl shadow-lg mb-4">
                     <div class="d-flex align-items-end">
@@ -57,13 +52,10 @@
                     <div class="col-4 d-none d-sm-block">Artist / Album</div>
                     <div class="col-1 text-end"><i class="bi bi-clock"></i></div>
                 </div>
-
                 <!-- Generate Song Containers -->
                 <div id="playlist-container" class="list-group list-group-flush">
                 </div>
-
             </div>
-
             <!-- Lyrics Sidebar -->
             <div class="col-lg-4 d-none" id="lyrics-column">
                 <div class="lyrics-sidebar shadow-lg">
@@ -75,7 +67,6 @@
             </div>
         </div>
     </div>
-
     <div class="fixed-bottom player-bar d-flex align-items-center px-2 px-md-4">
         <div class="flex-grow-1 h-100 d-flex align-items-center" id="spotify-player-container">
             <!-- Spotify Iframe -->
