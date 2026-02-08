@@ -15,7 +15,30 @@ To install & run this project, follow the steps below
 1. Clone the repository
 ```bash 
 git clone https://github.com/Random-Dummy/Edrick_Project1
-cd 
+cd Gobletto
+```
+2. Install dependencies, Run the command below to install all the dependencies the project uses
+```bash 
+npm install
+```
+
+3. Create a config.env file in the root directory of the project and add the following variables. Replace the values inside with your own API keys
+```bash
+SPOTIFY_CLIENT_ID=SPOTIFY_CLIENT
+SPOTIFY_CLIENT_SECRET=SPOTIFY_CLIENT_SECRET
+REDIRECT_URI=REDIRECT_URL
+
+GENIUS_CLIENT_ID=GENIUS_CLIENT
+GENIUS_CLIENT_SECRET=GENIUS_CLIENT_SECRET
+GENIUS_ACCESS_TOKEN=GENIUS_ACCESS_TOKEN
+```
+
+4. Run the application
+```bash 
+npm server.js
+```
+
+5. Access the application at http://localhost:3000
 ---
 
 ## Key Features
