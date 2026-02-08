@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    console.log("✅ Profile page loaded");
+    console.log("Profile page loaded");
 
     if (!sessionStorage.token) {
         console.warn("No token found, redirecting to login");
@@ -25,91 +25,6 @@ $(document).ready(function () {
         window.location.href = "login.html";
     });
 });
-
-/* =======================
-   Spotify Auth
-======================= */
-async function getAuthURL() {
-    console.log("🎧 Connecting to Spotify...");
-
-    try {
-        const response = await fetch(`${BASE_URL}/spotify/connect?token=${sessionStorage.token}`);
-        const data = await response.json();
-        console.log("Spotify connect response:", data);
-
-        if (response.ok && data.url) {
-            window.location.href = data.url; // <-- redirect
-        } else {
-            showMessage(data.message || "Spotify connection failed", "error");
-        }
-    } catch (error) {
-        console.error("Spotify auth error:", error);
-        showMessage("Error connecting to Spotify", "error");
-    }
-}
-
-/* =======================
-   Spotify Stats
-======================= */
-async function checkSpotifyConnection() {
-    console.log("🔍 Checking Spotify connection...");
-
-    try {
-        const response = await fetch(`${BASE_URL}/spotify/stats?token=${sessionStorage.token}`);
-        const data = await response.json();
-        console.log("Spotify stats:", data);
-
-        if (data.success && data.connected) {
-            $('#spotify-connect-section').hide();
-            $('#spotify-stats-section').show();
-            displayStats(data.stats);
-        } else {
-            $('#spotify-connect-section').show();
-            $('#spotify-stats-section').hide();
-        }
-    } catch (error) {
-        console.warn("Spotify not connected:", error);
-        $('#spotify-connect-section').show();
-        $('#spotify-stats-section').hide();
-    }
-}
-
-function displayStats(stats) {
-    $('#hours-played-count').text(stats?.hoursPlayed || 0);
-
-    $('#top-tracks-month-list').html(
-        (stats?.topTracksMonth || []).map(createTrackItem).join("")
-    );
-
-    $('#top-tracks-alltime-list').html(
-        (stats?.topTracksAllTime || []).map(createTrackItem).join("")
-    );
-
-    $('#top-artists-alltime-list').html(
-        (stats?.topArtistsAllTime || []).map((artist, i) => `
-            <li class="stat-item">
-                <span class="stat-number">${i + 1}</span>
-                <img src="${artist.image || './assets/default-album.png'}" class="stat-img rounded-circle">
-                <div class="stat-info">
-                    <a href="${artist.url}" target="_blank">${artist.name}</a>
-                </div>
-            </li>
-        `).join("")
-    );
-}
-
-function createTrackItem(track, index) {
-    return `
-        <li class="stat-item">
-            <span class="stat-number">${index + 1}</span>
-            <img src="${track.image || './assets/default-album.png'}" class="stat-img">
-            <div class="stat-info">
-                <a href="${track.url}" target="_blank">${track.name}</a>
-                <span>${track.artist}</span>
-            </div>
-        </li>
-    `;
-}
 
 /* =======================
    Profile
@@ -188,4 +103,85 @@ function showMessage(message, type) {
     el.text(message).removeClass().addClass(`message-area ${type}`);
 
     setTimeout(() => el.text("").removeClass(type), 5000);
+}
+
+/* =======================
+   Spotify Auth
+======================= */
+async function getAuthURL() {
+    console.log("🎧 Connecting to Spotify...");
+
+    try {
+        const response = await fetch(`${BASE_URL}/spotify/connect?token=${sessionStorage.token}`);
+        const data = await response.json();
+        console.log("Spotify connect response:", data);
+
+        if (response.ok && data.url) {
+            window.location.href = data.url; // <-- redirect
+        } else {
+            showMessage(data.message || "Spotify connection failed", "error");
+        }
+    } catch (error) {
+        console.error("Spotify auth error:", error);
+        showMessage("Error connecting to Spotify", "error");
+    }
+}
+
+/* =======================
+   Spotify Stats
+======================= */
+async function checkSpotifyConnection() {
+    console.log("🔍 Checking Spotify connection...");
+    try {
+        const response = await fetch(`${BASE_URL}/spotify/stats?token=${sessionStorage.token}`);
+        const data = await response.json();
+        console.log("Spotify stats:", data);
+
+        if (data.success && data.connected) {
+            $('#spotify-connect-section').hide();
+            $('#spotify-stats-section').show();
+            displayStats(data.stats);
+        } else {
+            $('#spotify-connect-section').show();
+            $('#spotify-stats-section').hide();
+        }
+    } catch (error) {
+        console.warn("Spotify not connected:", error);
+        $('#spotify-connect-section').show();
+        $('#spotify-stats-section').hide();
+    }
+}
+
+function displayStats(stats) {
+    $('#hours-played-count').text(stats?.hoursPlayed || 0);
+    $('#top-tracks-month-list').html(
+        (stats?.topTracksMonth || []).map(createTrackItem).join("")
+    );
+    $('#top-tracks-alltime-list').html(
+        (stats?.topTracksAllTime || []).map(createTrackItem).join("")
+    );
+    $('#top-artists-alltime-list').html(
+        (stats?.topArtistsAllTime || []).map((artist, i) => `
+            <li class="stat-item">
+                <span class="stat-number">${i + 1}</span>
+                <img src="${artist.image || './assets/default-album.png'}" class="stat-img rounded-circle">
+                <div class="stat-info">
+                    <a href="${artist.url}" target="_blank">${artist.name}</a>
+                </div>
+            </li>
+        `).join("")
+    );
+}
+
+function createTrackItem(track, index) {
+    return `
+        <li class="stat-item">
+            <span class="stat-number">${index + 1}</span>
+            <img src="${track.image || './assets/default-album.png'}" class="stat-img">
+            <div class="stat-info">
+                <a href="${track.url}" target="_blank">${track.name}</a>
+                <span>${track.artist}</span>
+            </div>
+        </li>
+    `;
 }

@@ -36,93 +36,6 @@ const refreshAccessToken = async () => {
 refreshAccessToken().catch(console.error);
 
 const spotifyService = {
-    // Login to user's spotify account
-    getAuthURL(userId) {
-        const scopes = ['user-top-read', 'user-read-private', 'user-read-email', 'user-read-recently-played'];
-        const state = userId.toString();
-        // Create a temporary instance to generate URL
-        const tempApi = new SpotifyWebApi({
-            clientId: process.env.SPOTIFY_CLIENT_ID,
-            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-            redirectUri: process.env.REDIRECT_URI
-        });
-        return tempApi.createAuthorizeURL(scopes, state, 'true');
-    },
-    // Handle the callback code and save spotify tokens
-    async authorizeUser(code) {
-
-        const tempApi = new SpotifyWebApi({
-            clientId: process.env.SPOTIFY_CLIENT_ID,
-            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-            redirectUri: process.env.REDIRECT_URI
-        });
-
-        try {
-            const data = await tempApi.authorizationCodeGrant(code);
-            return {
-                accessToken: data.body['access_token'],
-                refreshToken: data.body['refresh_token'],
-                expiresIn: data.body['expires_in']
-            };
-        } catch (error) {
-            console.error('Error authorizing user:', error);
-            throw error;
-        }
-    },
-    async getUserStats(refreshToken) {
-        const userApi = new SpotifyWebApi({
-            clientId: process.env.SPOTIFY_CLIENT_ID,
-            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-            refreshToken: refreshToken
-        });
-
-        try {
-            const data = await userApi.refreshAccessToken();
-            userApi.setAccessToken(data.body['access_token']);
-
-            // Calculate Hours Played from recent tracks
-            const recentTracks = await userApi.getMyRecentlyPlayedTracks({ limit: 50 });
-            let totalDurationMs = 0;
-            recentTracks.body.items.forEach(item => {
-                totalDurationMs += item.track.duration_ms;
-            });
-            const hoursPlayed = (totalDurationMs / (1000 * 60 * 60)).toFixed(1);
-
-            // Top Tracks last month
-            const topTracksMonth = await userApi.getMyTopTracks({ limit: 10, time_range: 'short_term' });
-
-            // Top Tracks all time
-            const topTracksAllTime = await userApi.getMyTopTracks({ limit: 20, time_range: 'long_term' });
-
-            // Top Artists all time
-            const topArtistsAllTime = await userApi.getMyTopArtists({ limit: 15, time_range: 'long_term' });
-
-            // Helper to format track data
-            const formatTrack = (track) => ({
-                name: track.name,
-                artist: track.artists.map(a => a.name).join(', '),
-                album: track.album.name,
-                image: track.album.images[0] ? track.album.images[0].url : null,
-                url: track.external_urls.spotify
-            });
-
-            return {
-                hoursPlayed: hoursPlayed,
-                recentTrackCount: recentTracks.body.items.length,
-                topTracksMonth: topTracksMonth.body.items.map(formatTrack),
-                topTracksAllTime: topTracksAllTime.body.items.map(formatTrack),
-                topArtistsAllTime: topArtistsAllTime.body.items.map(artist => ({
-                    name: artist.name,
-                    image: artist.images[0] ? artist.images[0].url : null,
-                    url: artist.external_urls.spotify
-                }))
-            };
-        } catch (error) {
-            console.error('Error fetching user stats:', error);
-            throw new Error('Failed to fetch user stats');
-        }
-    },
-
     // Search for tracks on Spotify
     async searchTracks(query, limit = 50) {
         try {
@@ -184,6 +97,93 @@ const spotifyService = {
         } catch (error) {
             console.error('Spotify API Error:', error.message);
             return null;
+        }
+    },
+
+    // Login to user's spotify account
+    getAuthURL(userId) {
+        const scopes = ['user-top-read', 'user-read-private', 'user-read-email', 'user-read-recently-played'];
+        const state = userId.toString();
+        // Create a temporary instance to generate URL
+        const tempApi = new SpotifyWebApi({
+            clientId: process.env.SPOTIFY_CLIENT_ID,
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+            redirectUri: process.env.REDIRECT_URI
+        });
+        return tempApi.createAuthorizeURL(scopes, state, 'true');
+    },
+    // Handle the callback code and save spotify tokens
+    async authorizeUser(code) {
+        const tempApi = new SpotifyWebApi({
+            clientId: process.env.SPOTIFY_CLIENT_ID,
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+            redirectUri: process.env.REDIRECT_URI
+        });
+
+        try {
+            const data = await tempApi.authorizationCodeGrant(code);
+            return {
+                accessToken: data.body['access_token'],
+                refreshToken: data.body['refresh_token'],
+                expiresIn: data.body['expires_in']
+            };
+        } catch (error) {
+            console.error('Error authorizing user:', error);
+            throw error;
+        }
+    },
+    
+    async getUserStats(refreshToken) {
+        const userApi = new SpotifyWebApi({
+            clientId: process.env.SPOTIFY_CLIENT_ID,
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+            refreshToken: refreshToken
+        });
+
+        try {
+            const data = await userApi.refreshAccessToken();
+            userApi.setAccessToken(data.body['access_token']);
+
+            // Calculate Hours Played from recent tracks
+            const recentTracks = await userApi.getMyRecentlyPlayedTracks({ limit: 50 });
+            let totalDurationMs = 0;
+            recentTracks.body.items.forEach(item => {
+                totalDurationMs += item.track.duration_ms;
+            });
+            const hoursPlayed = (totalDurationMs / (1000 * 60 * 60)).toFixed(1);
+
+            // Top Tracks last month
+            const topTracksMonth = await userApi.getMyTopTracks({ limit: 10, time_range: 'short_term' });
+
+            // Top Tracks all time
+            const topTracksAllTime = await userApi.getMyTopTracks({ limit: 20, time_range: 'long_term' });
+
+            // Top Artists all time
+            const topArtistsAllTime = await userApi.getMyTopArtists({ limit: 15, time_range: 'long_term' });
+
+            // Helper to format track data
+            const formatTrack = (track) => ({
+                name: track.name,
+                artist: track.artists.map(a => a.name).join(', '),
+                album: track.album.name,
+                image: track.album.images[0] ? track.album.images[0].url : null,
+                url: track.external_urls.spotify
+            });
+
+            return {
+                hoursPlayed: hoursPlayed,
+                recentTrackCount: recentTracks.body.items.length,
+                topTracksMonth: topTracksMonth.body.items.map(formatTrack),
+                topTracksAllTime: topTracksAllTime.body.items.map(formatTrack),
+                topArtistsAllTime: topArtistsAllTime.body.items.map(artist => ({
+                    name: artist.name,
+                    image: artist.images[0] ? artist.images[0].url : null,
+                    url: artist.external_urls.spotify
+                }))
+            };
+        } catch (error) {
+            console.error('Error fetching user stats:', error);
+            throw new Error('Failed to fetch user stats');
         }
     },
 
