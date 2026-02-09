@@ -14,7 +14,6 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
     }
 };
 
-// Initialize UI components and Event Listeners
 $(async function () {
     // Check authentication for non-public views
     if (!isPublicView && !sessionStorage.token) {

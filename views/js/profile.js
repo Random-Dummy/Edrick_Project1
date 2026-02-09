@@ -26,9 +26,6 @@ $(document).ready(function () {
     });
 });
 
-/* =======================
-   Profile
-======================= */
 async function getUserProfile() {
     try {
         const response = await fetch(
@@ -95,9 +92,6 @@ async function updateProfile() {
     }
 }
 
-/* =======================
-   Messages
-======================= */
 function showMessage(message, type) {
     const el = $('#message-area');
     el.text(message).removeClass().addClass(`message-area ${type}`);

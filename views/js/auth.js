@@ -1,6 +1,4 @@
-// auth.js - Combined jQuery authentication module
 $(function () {
-    // Check authentication status on page load
     const currentPage = window.location.pathname.split("/").pop();
     const token = sessionStorage.getItem("token");
 
@@ -14,22 +12,17 @@ $(function () {
         window.location.href = "index.html";
     }
 
-    // Initialize logout button if exists
     $('#logoutbutton').on('click', function (e) {
         e.preventDefault();
         logout();
     });
 
-    // Initialize login form if exists
     if ($('#login-form').length) {
         $('#login-form').on('submit', handleLogin);
     }
 
-    // Initialize register form if exists
     if ($('#register-form').length) {
         $('#register-form').on('submit', handleRegister);
-
-        // Password toggle for register form
         $('#togglePassword').on('click', function () {
             const passwordInput = $('#password');
             const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
@@ -39,7 +32,6 @@ $(function () {
     }
 });
 
-// Login handler
 async function handleLogin(e) {
     e.preventDefault();
 
@@ -72,7 +64,6 @@ async function handleLogin(e) {
     }
 }
 
-// Register handler
 async function handleRegister(e) {
     e.preventDefault();
 
@@ -105,7 +96,6 @@ async function handleRegister(e) {
     }
 }
 
-// Logout function
 async function logout() {
     try {
         const token = sessionStorage.getItem('token');
@@ -133,42 +123,31 @@ async function logout() {
     }
 }
 
-// Notification utility function
 function showNotification(message, type = 'success', duration = 3000) {
-    // Remove existing notification if any
     $('#notification').remove();
-
-    // Create notification
     $('body').append(`
         <div id="notification" class="${type}">
             <span id="notification-text">${message}</span>
         </div>
     `);
-
-    // Show with animation
     $('#notification').css('display', 'block');
     setTimeout(() => {
         $('#notification').addClass('show');
     }, 10);
 
-    // Auto hide
     setTimeout(() => {
         $('#notification').removeClass('show');
         setTimeout(() => {
             $('#notification').remove();
         }, 300);
     }, duration);
-
-    // Optional: Click to dismiss
     $('#notification').on('click', function () {
         $(this).removeClass('show');
         setTimeout(() => $(this).remove(), 300);
     });
 }
 
-// Optional: Add password toggle for login form too
 $(function () {
-    // Add password toggle to login form if needed
     if ($('#login-toggle-password').length) {
         $('#login-toggle-password').on('click', function () {
             const passwordInput = $('#password');

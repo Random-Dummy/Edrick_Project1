@@ -36,13 +36,43 @@
   },
   "username": "test3",
   "email": "random@test.com",
-  "password": "spyder123",
+  "password": "spider123",
   "createdAt": {
     "$date": "2026-02-06T10:55:30.552Z"
   },
   "updatedAt": {
-    "$date": "2026-02-08T07:51:32.616Z"
+    "$date": "2026-02-09T09:20:26.658Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6988e0ea6ae03d9edafa2e7e"
+  },
+  "username": "Random",
+  "email": "test@random.com",
+  "password": "spider123",
+  "createdAt": {
+    "$date": "2026-02-08T19:15:54.810Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-09T11:20:07.956Z"
   },
   "__v": 0,
-  "token": "d90c86c58cc41b3b2a2270ce9563e738"
+  "token": "f172fa11781493a6e99762336ac3686d"
+},
+{
+  "_id": {
+    "$oid": "6989a6ea7d106af39147e949"
+  },
+  "username": "test2",
+  "email": "test2@real.com",
+  "password": "spider123",
+  "createdAt": {
+    "$date": "2026-02-09T09:20:42.199Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-09T10:09:39.319Z"
+  },
+  "__v": 0
 }]

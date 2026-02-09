@@ -8,17 +8,6 @@
   },
   "tracks": [
     {
-      "spotifyTrackId": "5XGvJoSHGzJ1elgLZgviJK",
-      "name": "Blinding Lights",
-      "artist": "The Weeknd",
-      "album": "After Hours",
-      "durationMs": 200000,
-      "albumImage": "https://i.scdn.co/image/ab67616d0000b2738863bc11d2aa12b54f5aeb36",
-      "_id": {
-        "$oid": "69822fbd331ce8a9aa27e425"
-      }
-    },
-    {
       "spotifyTrackId": "4I01JiotzjG0twezQt1xqX",
       "name": "Testimony",
       "artist": "Terrian",
@@ -28,61 +17,119 @@
       "_id": {
         "$oid": "69863e096732392c78c3efee"
       }
+    },
+    {
+      "spotifyTrackId": "5uDASfU19gDxSjW8cnCaBp",
+      "name": "Chill Bill (feat. J. Davi$ & Spooks)",
+      "artist": "Rob $tone, J. Davi$, J Spooks",
+      "album": "",
+      "durationMs": 0,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b2736f3e9696889a2425338e0836",
+      "_id": {
+        "$oid": "6988e07b6ae03d9edafa2e13"
+      }
     }
   ],
   "createdAt": {
     "$date": "2026-02-03T17:26:21.589Z"
   },
   "updatedAt": {
-    "$date": "2026-02-06T20:04:30.443Z"
+    "$date": "2026-02-08T19:14:03.305Z"
   },
-  "__v": 1,
+  "__v": 3,
   "description": "Chillax"
 },
 {
   "_id": {
-    "$oid": "698635a491e4aa40125da7ff"
+    "$oid": "6988df6472d42224928488cc"
   },
-  "name": "test",
+  "name": "test1",
+  "description": "",
   "creator": {
     "$oid": "6985c8a277d948418a122fb6"
   },
   "tracks": [
     {
-      "spotifyTrackId": "1chmVQLbEPT5890S0X55pe",
-      "name": "TEST ME",
-      "artist": "CHANMINA",
-      "album": "TEST ME",
-      "durationMs": 171482,
-      "albumImage": "https://i.scdn.co/image/ab67616d0000b273af62372ee43fe1e854d0bce5",
+      "spotifyTrackId": "4ppKM7xnkSAwSyKqD4QTY4",
+      "name": "Chill Bae",
+      "artist": "Lil Uzi Vert",
+      "album": "",
+      "durationMs": 0,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b2730e4e16d910115fead3e83496",
       "_id": {
-        "$oid": "69864447ae3127fa7a560636"
+        "$oid": "6988e0836ae03d9edafa2e31"
       }
     }
   ],
   "createdAt": {
-    "$date": "2026-02-06T18:40:36.483Z"
+    "$date": "2026-02-08T19:09:24.717Z"
   },
   "updatedAt": {
-    "$date": "2026-02-06T19:43:03.393Z"
+    "$date": "2026-02-08T19:14:11.828Z"
   },
   "__v": 1
 },
 {
   "_id": {
-    "$oid": "69884088a2d91873d5157045"
+    "$oid": "6989a6f57d106af39147e952"
   },
-  "name": "Yeah",
-  "description": "O@ok",
+  "name": "test",
+  "description": "",
   "creator": {
-    "$oid": "6985c8a277d948418a122fb6"
+    "$oid": "6989a6ea7d106af39147e949"
   },
-  "tracks": [],
+  "tracks": [
+    {
+      "spotifyTrackId": "6Ft1XuvNszzYKUzWYK67VR",
+      "name": "GHOST",
+      "artist": "Hoshimachi Suisei",
+      "album": "",
+      "durationMs": 0,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b273194d7025ba5e17eeadd3a10f",
+      "_id": {
+        "$oid": "6989a7267d106af39147e9a3"
+      }
+    }
+  ],
   "createdAt": {
-    "$date": "2026-02-08T07:51:36.454Z"
+    "$date": "2026-02-09T09:20:53.027Z"
   },
   "updatedAt": {
-    "$date": "2026-02-08T07:51:41.264Z"
+    "$date": "2026-02-09T09:21:42.250Z"
   },
-  "__v": 0
+  "__v": 1,
+  "cloneCount": 0,
+  "isPublic": true,
+  "playlistpicture": ""
+},
+{
+  "_id": {
+    "$oid": "6989b75475098c9adac3a341"
+  },
+  "name": "Test1",
+  "creator": {
+    "$oid": "6988e0ea6ae03d9edafa2e7e"
+  },
+  "description": "",
+  "playlistpicture": "",
+  "tracks": [
+    {
+      "spotifyTrackId": "3Ksyal4c4OD5g69t52Sc4e",
+      "name": "Lolibox",
+      "artist": "Sewerslvt",
+      "album": "",
+      "durationMs": 0,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b273d106ecae087e3ab2f1d6f9ca",
+      "_id": {
+        "$oid": "6989b76575098c9adac3a359"
+      }
+    }
+  ],
+  "isPublic": true,
+  "cloneCount": 0,
+  "originalPlaylistId": null,
+  "createdAt": {
+    "$date": "2026-02-09T10:30:44.024Z"
+  },
+  "__v": 3
 }]

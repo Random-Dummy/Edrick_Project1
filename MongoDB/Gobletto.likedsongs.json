@@ -35,10 +35,65 @@
       "_id": {
         "$oid": "698637f002f40fba8f91c074"
       }
+    },
+    {
+      "spotifyTrackId": "6Ft1XuvNszzYKUzWYK67VR",
+      "name": "GHOST",
+      "artist": "Hoshimachi Suisei",
+      "album": "GHOST",
+      "durationMs": 282609,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b273194d7025ba5e17eeadd3a10f",
+      "_id": {
+        "$oid": "6988d4dd73e768177190a8b1"
+      }
+    },
+    {
+      "spotifyTrackId": "5uDASfU19gDxSjW8cnCaBp",
+      "name": "Chill Bill (feat. J. Davi$ & Spooks)",
+      "artist": "Rob $tone, J. Davi$, J Spooks",
+      "album": "Chill Bill (feat. J. Davi$ & Spooks)",
+      "durationMs": 177184,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b2736f3e9696889a2425338e0836",
+      "_id": {
+        "$oid": "6988e07d6ae03d9edafa2e1b"
+      }
     }
   ],
   "user": {
     "$oid": "6985c8a277d948418a122fb6"
   },
-  "__v": 6
+  "__v": 10
+},
+{
+  "_id": {
+    "$oid": "6989a6fe7d106af39147e961"
+  },
+  "tracks": [
+    {
+      "spotifyTrackId": "6v8fX5yXd15H3xSyvVvJ5e",
+      "name": "ラグトレイン",
+      "artist": "稲葉曇",
+      "album": "ラグトレイン",
+      "durationMs": 251428,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b2737c969c62de7105a727045529",
+      "_id": {
+        "$oid": "6989a6fe7d106af39147e962"
+      }
+    },
+    {
+      "spotifyTrackId": "2zAi85TQB7mLzl8P1ySAj9",
+      "name": "Lost Umbrella",
+      "artist": "稲葉曇",
+      "album": "ANTICYCLONE",
+      "durationMs": 204497,
+      "albumImage": "https://i.scdn.co/image/ab67616d0000b27325c2a3af824b7dd8cafae97e",
+      "_id": {
+        "$oid": "6989a7107d106af39147e97d"
+      }
+    }
+  ],
+  "user": {
+    "$oid": "6989a6ea7d106af39147e949"
+  },
+  "__v": 1
 }]
