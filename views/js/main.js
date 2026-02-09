@@ -545,7 +545,7 @@ function displayPlaylists(playlists) {
     // Clear existing playlists except the liked songs card
     container.find(".playlist-card").remove();
 
-    if (playlists.length === 0) return;
+    if (playlists.length === 0) { appendCreatePlaylistCard(); return; };
 
     playlists.forEach(function (playlist) {
         let image = playlist.playlistpicture;
