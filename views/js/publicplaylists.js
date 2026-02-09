@@ -12,6 +12,9 @@ $(async function () {
         return;
     }
 
+    // Initialize sort buttons
+    updateSortButtons();
+    
     // Load initial playlists
     await loadPublicPlaylists();
 
@@ -47,15 +50,6 @@ $(async function () {
     $('#sort-newest').on('click', function () {
         if (currentSort === 'newest') return;
         currentSort = 'newest';
-        updateSortButtons();
-        currentPage = 1;
-        $('#public-playlists-container').empty();
-        loadPublicPlaylists();
-    });
-
-    $('#sort-popular').on('click', function () {
-        if (currentSort === 'popular') return;
-        currentSort = 'popular';
         updateSortButtons();
         currentPage = 1;
         $('#public-playlists-container').empty();
@@ -110,9 +104,10 @@ $(async function () {
     });
 
     function updateSortButtons() {
-        $('#sort-newest, #sort-popular, #sort-cloned')
-            .removeClass('btn-primary')
+        $('#sort-newest, #sort-cloned')
+            .removeClass('btn-primary btn-secondary')
             .addClass('btn-secondary');
+        
         $(`#sort-${currentSort}`)
             .removeClass('btn-secondary')
             .addClass('btn-primary');
@@ -131,18 +126,15 @@ $(async function () {
 
         try {
             // Build URL with pagination, sorting, and search
-            let url = `${BASE_URL}/playlists/public?page=${currentPage}&limit=12`;
+            let url = `${BASE_URL}/playlists/public?page=${currentPage}&limit=12&sort=${currentSort}`;
             
             // Add search parameter if exists
             if (currentSearch) {
                 url += `&search=${encodeURIComponent(currentSearch)}`;
             }
-            
-            // Add sort parameter - you need to implement this in your backend
-            // Currently using 'newest', 'popular', 'cloned' as sort options
-            // You'll need to modify your backend to handle these sort options
-            url += `&sort=${currentSort}`;
 
+            console.log('Loading playlists from:', url);
+            
             const response = await fetch(url);
             
             if (!response.ok) {
@@ -150,6 +142,7 @@ $(async function () {
             }
 
             const data = await response.json();
+            console.log('Playlists data received:', data);
 
             if (data.success) {
                 displayPublicPlaylists(data.playlists);
@@ -253,7 +246,7 @@ $(async function () {
             const trackCount = playlist.tracks ? playlist.tracks.length : 0;
             const trackText = trackCount === 1 ? '1 track' : `${trackCount} tracks`;
 
-            // Format clone count
+            // Format clone count - IMPORTANT for "Most Cloned" sort
             const cloneCount = playlist.cloneCount || 0;
 
             // Get playlist description (truncate if too long)
@@ -302,6 +295,11 @@ $(async function () {
                             ${description}
                         </p>
                         ` : ''}
+                        <!-- Debug info - shows sort values -->
+                        <p class="card-subtitle" style="font-size: 0.7em; color: #666;">
+                            <span style="color: ${currentSort === 'newest' ? '#1DB954' : '#888'};">Newest sort</span> | 
+                            <span style="color: ${currentSort === 'cloned' ? '#1DB954' : '#888'};">Clones: ${cloneCount}</span>
+                        </p>
                     </div>
                     <div class="card-actions" style="display: flex; justify-content: space-between; padding: 10px 15px; border-top: 1px solid rgba(255,255,255,0.1);">
                         <button class="btn btn-sm btn-outline-primary view-playlist-btn" 
@@ -432,7 +430,4 @@ $(async function () {
             setTimeout(() => $(this).remove(), 300);
         });
     }
-    
-    // Initialize sort buttons
-    updateSortButtons();
 });

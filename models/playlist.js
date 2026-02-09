@@ -42,7 +42,7 @@ const playlistSchema = new mongoose.Schema({
     },
     originalPlaylistId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Playlist', // Self-reference
+        ref: 'Playlist',
         default: null
     }
 });

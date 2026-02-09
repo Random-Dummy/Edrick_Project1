@@ -160,11 +160,8 @@ let playlistService = {
     async getPublicPlaylists(page = 1, limit = 20, search = '', sort = 'newest') {
         try {
             const skip = (page - 1) * limit;
-
-            // Build query
             let query = { isPublic: true };
-
-            // Add search functionality
+            // search functionality
             if (search && search.trim() !== '') {
                 const searchRegex = new RegExp(search, 'i');
                 query.$or = [
@@ -191,13 +188,11 @@ let playlistService = {
             }
 
             const publicPlaylists = await playlist.find(query)
-                .populate('creator', 'username email')
+                .populate('creator', 'username')
                 .sort(sortOption)
                 .skip(skip)
                 .limit(limit);
-
             const total = await playlist.countDocuments(query);
-
             return {
                 success: true,
                 playlists: publicPlaylists,
