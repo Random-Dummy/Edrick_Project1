@@ -244,12 +244,22 @@ $(async function () {
 async function getLyrics(trackId) {
     if (!trackId) return;
     try {
-        const response = await fetch(`/lyrics/${trackId}?token=${sessionStorage.token}`);
+        const track = trackData.find(t => t.id === trackId);
+        if (!track) {
+            $('#lyrics-content').text("Track not found in playlist.");
+            return;
+        }
+        const url = `/lyrics/${trackId}?token=${sessionStorage.token}&songName=${encodeURIComponent(track.name)}&artist=${encodeURIComponent(track.artist)}`;
+        const response = await fetch(url);
         const data = await response.json();
-        $('#lyrics-content').text(data.lyrics || "Lyrics not found.").css('white-space', 'pre-wrap');
+        if (data.success && data.lyrics) {
+            $('#lyrics-content').text(data.lyrics).css('white-space', 'pre-wrap');
+        } else {
+            $('#lyrics-content').text("Lyrics not found. " + (data.message || ""));
+        }
     } catch (error) {
         console.error("Error fetching lyrics:", error);
-        $('#lyrics-content').text("Lyrics not found.");
+        $('#lyrics-content').text("Error fetching lyrics. Please try again.");
     }
 }
 
