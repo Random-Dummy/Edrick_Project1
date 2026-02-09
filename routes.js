@@ -255,6 +255,137 @@ router.delete('/playlists/:playlistId/tracks/:spotifyTrackId', authenticationChe
         });
 });
 
+// Toggle playlist public status
+router.put('/playlists/:playlistId/public', authenticationCheck, async function (req, res) {
+    let userId = res.locals.userId;
+    let playlistId = req.params.playlistId;
+    let { isPublic } = req.body;
+
+    if (typeof isPublic !== 'boolean') {
+        return res.status(400).json({
+            success: false,
+            message: "isPublic must be a boolean"
+        });
+    }
+
+    playlistService.togglePublicStatus(playlistId, userId, isPublic)
+        .then(function (response) {
+            res.status(200).json(response);
+        })
+        .catch(function (error) {
+            console.error("Error toggling playlist public status:", error.message);
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        });
+});
+
+// Get all public playlists (no auth required)
+router.get('/playlists/public', async function (req, res) {
+    let { page, limit } = req.query;
+
+    playlistService.getPublicPlaylists(parseInt(page) || 1, parseInt(limit) || 20)
+        .then(function (response) {
+            res.status(200).json(response);
+        })
+        .catch(function (error) {
+            console.error("Error getting public playlists:", error.message);
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        });
+});
+
+// Get public playlist tracks (no authentication required)
+router.get('/playlists/public/:playlistId/tracks', async function (req, res) {
+    const playlistId = req.params.playlistId;
+
+    try {
+        // Use the new service method
+        const playlistDoc = await playlistService.getPublicPlaylistById(playlistId);
+
+        res.status(200).json({
+            success: true,
+            playlist: {
+                _id: playlistDoc._id,
+                name: playlistDoc.name,
+                description: playlistDoc.description,
+                isPublic: playlistDoc.isPublic,
+                creator: playlistDoc.creator,
+                cloneCount: playlistDoc.cloneCount || 0
+            },
+            tracks: (playlistDoc.tracks || []).map(t => ({
+                spotifyTrackId: t.spotifyTrackId,
+                name: t.name,
+                artist: t.artist,
+                album: t.album,
+                albumImage: t.albumImage,
+                durationMs: t.durationMs
+            }))
+        });
+    } catch (error) {
+        console.error("Error fetching public playlist tracks:", error.message);
+
+        // Handle specific error types
+        if (error.message.includes("Playlist not found")) {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        if (error.message.includes("private")) {
+            return res.status(403).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: "Server error: " + error.message
+        });
+    }
+});
+
+// Clone a public playlist
+router.post('/playlists/:playlistId/clone', authenticationCheck, async function (req, res) {
+    let userId = res.locals.userId;
+    let playlistId = req.params.playlistId;
+    let { newName } = req.body;
+
+    playlistService.clonePlaylist(playlistId, userId, newName)
+        .then(function (response) {
+            res.status(200).json(response);
+        })
+        .catch(function (error) {
+            console.error("Error cloning playlist:", error.message);
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        });
+});
+
+// Get user's own public playlists
+router.get('/playlists/my/public', authenticationCheck, async function (req, res) {
+    let userId = res.locals.userId;
+
+    playlistService.getUserPublicPlaylists(userId)
+        .then(function (response) {
+            res.status(200).json(response);
+        })
+        .catch(function (error) {
+            console.error("Error getting user's public playlists:", error.message);
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        });
+});
+
 // Liked Songs stuff ===============================================================================================================
 
 // Add song to liked songs

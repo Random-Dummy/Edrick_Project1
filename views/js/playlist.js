@@ -1,8 +1,8 @@
 const urlParams = new URLSearchParams(window.location.search);
 const playlistId = urlParams.get('id');
+const isPublicView = urlParams.get('view') === 'public';
 
 let embedController = null;
-let isPlaying = false;
 let trackData = [];
 let iFrameAPI = null;
 let currentTrackId = null;
@@ -16,6 +16,12 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
 
 // Initialize UI components and Event Listeners
 $(async function () {
+    // Check authentication for non-public views
+    if (!isPublicView && !sessionStorage.token) {
+        window.location.href = 'login.html';
+        return;
+    }
+
     // Lyrics Sidebar Toggle Logic
     const lyricsBtn = $('#lyrics-toggle-btn');
     const lyricsCol = $('#lyrics-column');
@@ -93,6 +99,107 @@ $(async function () {
         renderPlaylist(filteredTracks);
     });
 
+    // Fetch playlist info and tracks based on view type
+    if (isPublicView) {
+        await loadPublicPlaylist();
+    } else {
+        await loadPrivatePlaylist();
+    }
+});
+
+// --- Helper Functions ---
+
+async function loadPublicPlaylist() {
+    if (!playlistId) {
+        showNotification("Playlist ID not found", 'error');
+        window.location.href = 'publicplaylist.html';
+        return;
+    }
+
+    try {
+        console.log('Loading public playlist:', playlistId);
+
+        // For public view, use the public endpoint
+        const response = await fetch(`${BASE_URL}/playlists/public/${playlistId}/tracks`);
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            const errorMessage = errorData.message || `HTTP ${response.status}`;
+
+            if (response.status === 403) {
+                showNotification("This playlist is private", 'error');
+                setTimeout(() => {
+                    window.location.href = 'publicplaylist.html';
+                }, 2000);
+                return;
+            } else if (response.status === 404) {
+                showNotification("Playlist not found", 'error');
+                setTimeout(() => {
+                    window.location.href = 'publicplaylist.html';
+                }, 2000);
+                return;
+            }
+            throw new Error(errorMessage);
+        }
+
+        const jsonData = await response.json();
+        console.log('Public playlist data:', jsonData);
+
+        if (!jsonData.success) {
+            showNotification(jsonData.message || "Failed to load playlist", 'error');
+            return;
+        }
+
+        // Set playlist info
+        $('#playlistname').text(jsonData.playlist.name);
+        $('#playlist-description').text(jsonData.playlist.description || 'No description');
+
+        // Format creator info
+        const creatorName = jsonData.playlist.creator?.username || 'Unknown User';
+        const creatorHtml = `<span class="badge bg-success" style="font-size: 0.6em; vertical-align: middle;">By ${creatorName}</span>`;
+        $('#playlistname').append(` ${creatorHtml}`);
+
+        // Get image from first track or use default
+        if (jsonData.tracks && jsonData.tracks.length > 0 && jsonData.tracks[0].albumImage) {
+            $('#playlist-image').css('background-image',
+                `url('${jsonData.tracks[0].albumImage}')`);
+        } else {
+            $('#playlist-image').css('background-image', `url('./assets/default-album.png')`);
+        }
+
+        // Process tracks
+        trackData = (jsonData.tracks || []).map(track => ({
+            id: track.spotifyTrackId,
+            name: track.name || '',
+            artist: track.artist || '',
+            album: track.album || '',
+            durationMs: track.durationMs || 0,
+            albumImage: track.albumImage || './assets/default-album.png'
+        })).filter(track => track.id);
+
+        console.log('Processed track data:', trackData);
+
+        renderPlaylist(trackData);
+
+        // Initialize player if we have tracks
+        if (trackData.length > 0) {
+            if (iFrameAPI && !embedController) {
+                initSpotifyPlayer(trackData[0].id);
+            }
+        } else {
+            $('#playlist-container').html('<p class="text-center text-secondary">No tracks in this playlist</p>');
+        }
+
+    } catch (error) {
+        console.error('Failed to load public playlist:', error);
+        showNotification('Error loading playlist: ' + error.message, 'error');
+        $('#playlist-container').html(`<p class="text-danger text-center">Error: ${error.message}</p>`);
+    }
+}
+
+async function loadPrivatePlaylist() {
     // Fetch playlist info
     if (playlistId) {
         try {
@@ -106,7 +213,7 @@ $(async function () {
                 throw new Error("Server did not return JSON for playlist info");
             }
 
-            const playlistData = await response.json(); // renamed variable
+            const playlistData = await response.json();
             if (playlistData.playlists) {
                 const playlist = playlistData.playlists.find(p => p._id === playlistId);
                 if (playlist) {
@@ -114,8 +221,18 @@ $(async function () {
                     $('#playlist-description').text(
                         playlist.description || 'No description'
                     );
-                    let image = playlist.playlistpicture || (playlist.tracks && playlist.tracks[0]?.albumImage) || "";
-                    $('#playlist-image').css('background-image', image ? `url('${image}')` : 'none');
+
+                    // Set playlist image
+                    let image = playlist.playlistpicture ||
+                        (playlist.tracks && playlist.tracks[0]?.albumImage) ||
+                        './assets/default-album.png';
+                    $('#playlist-image').css('background-image', `url('${image}')`);
+
+                    // Add public/private indicator
+                    const visibilityBadge = playlist.isPublic
+                        ? '<span class="badge bg-success" style="font-size: 0.6em; vertical-align: middle;">Public</span>'
+                        : '<span class="badge bg-secondary" style="font-size: 0.6em; vertical-align: middle;">Private</span>';
+                    $('#playlistname').append(` ${visibilityBadge}`);
                 }
             }
         } catch (error) {
@@ -148,7 +265,6 @@ $(async function () {
 
         const tracks = jsonData.tracks || jsonData.likedSongs || [];
         trackData = tracks.map(track => {
-            // Check both possibilities
             const trackId = track.spotifyTrackId || track.id || track.track?.id;
 
             if (!trackId) {
@@ -162,7 +278,7 @@ $(async function () {
                 artist: track.artist || '',
                 album: track.album || '',
                 durationMs: track.durationMs || 0,
-                albumImage: track.albumImage || track.album?.images?.[0]?.url || ''
+                albumImage: track.albumImage || track.album?.images?.[0]?.url || './assets/default-album.png'
             };
         }).filter(track => track !== null);
 
@@ -176,70 +292,7 @@ $(async function () {
         console.error('Failed to load playlist:', error);
         $('#playlist-container').html(`<p class="text-danger">Error: ${error.message}</p>`);
     }
-
-    // Fetch tracks
-    const url = playlistId
-        ? `${PLAYLISTS_URL}/${playlistId}/tracks?token=${sessionStorage.token}`
-        : `${LIKED_SONGS_URL}?token=${sessionStorage.token}`;
-
-    try {
-        const response = await fetch(url);
-
-        const contentType = response.headers.get('content-type');
-        let jsonData;  // renamed from 'data'
-
-        if (contentType && contentType.includes('application/json')) {
-            jsonData = await response.json();  // assign, not redeclare
-        } else {
-            const text = await response.text();
-            console.error("Expected JSON but got:", text);
-            throw new Error("Server did not return JSON");
-        }
-
-        if (!response.ok) {
-            throw new Error(jsonData?.message || `Error fetching playlist: ${response.statusText}`);
-        }
-
-        // Use jsonData instead of data
-        // In your fetch/processing code, use:
-        const tracks = jsonData.tracks || jsonData.likedSongs || [];
-        console.log("First track example:", tracks[0]); // Debug
-
-        trackData = tracks.map(track => {
-            // The correct property is spotifyTrackId
-            const trackId = track.spotifyTrackId;
-
-            if (!trackId) {
-                console.warn("Track missing spotifyTrackId:", track);
-                return null;
-            }
-
-            return {
-                id: trackId,  // Use spotifyTrackId as the ID
-                name: track.name || '',
-                artist: track.artist || '',
-                album: track.album || '',
-                durationMs: track.durationMs || 0,
-                albumImage: track.albumImage || ''
-            };
-        }).filter(track => track !== null); // Filter out null tracks
-
-        // Then check if we have valid tracks before initializing player
-        if (trackData.length > 0 && trackData[0].id) {
-            console.log("First track ID:", trackData[0].id);
-            if (iFrameAPI && !embedController) {
-                initSpotifyPlayer(trackData[0].id);
-            }
-        } else {
-            console.error("No valid tracks found or first track missing ID");
-        }
-    } catch (error) {
-        console.error('Failed to load playlist:', error);
-        $('#playlist-container').html(`<p class="text-danger">Error: ${error.message}</p>`);
-    }
-});
-
-// --- Helper Functions ---
+}
 
 async function getLyrics(trackId) {
     if (!trackId) return;
@@ -249,8 +302,35 @@ async function getLyrics(trackId) {
             $('#lyrics-content').text("Track not found in playlist.");
             return;
         }
-        const url = `/lyrics/${trackId}?token=${sessionStorage.token}&songName=${encodeURIComponent(track.name)}&artist=${encodeURIComponent(track.artist)}`;
+
+        // Always try to use the token if available (user is logged in)
+        const token = sessionStorage.token;
+        const tokenParam = token ? `?token=${token}` : '';
+        const url = `${BASE_URL}/lyrics/${trackId}${tokenParam}&songName=${encodeURIComponent(track.name)}&artist=${encodeURIComponent(track.artist)}`;
+
+        console.log('Fetching lyrics from:', url);
+
         const response = await fetch(url);
+
+        if (!response.ok) {
+            console.error('Lyrics fetch failed:', response.status, response.statusText);
+            // Try without token as fallback
+            if (token && response.status === 401) {
+                const fallbackUrl = `${BASE_URL}/lyrics/${trackId}?songName=${encodeURIComponent(track.name)}&artist=${encodeURIComponent(track.artist)}`;
+                console.log('Trying fallback URL:', fallbackUrl);
+                const fallbackResponse = await fetch(fallbackUrl);
+                if (fallbackResponse.ok) {
+                    const data = await fallbackResponse.json();
+                    if (data.success && data.lyrics) {
+                        $('#lyrics-content').text(data.lyrics).css('white-space', 'pre-wrap');
+                        return;
+                    }
+                }
+            }
+            $('#lyrics-content').text("Error fetching lyrics.");
+            return;
+        }
+
         const data = await response.json();
         if (data.success && data.lyrics) {
             $('#lyrics-content').text(data.lyrics).css('white-space', 'pre-wrap');
@@ -264,6 +344,7 @@ async function getLyrics(trackId) {
 }
 
 function formatDuration(ms) {
+    if (!ms || ms <= 0) return "0:00";
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
@@ -271,6 +352,10 @@ function formatDuration(ms) {
 }
 
 async function deleteTrack(trackId) {
+    if (isPublicView) {
+        showNotification("Cannot delete tracks from a public playlist. Clone it first to make edits.", 'error');
+        return;
+    }
     if (!confirm("Are you sure you want to remove this track?")) return;
 
     const deleteUrl = playlistId
@@ -282,22 +367,28 @@ async function deleteTrack(trackId) {
         if (response.ok) {
             trackData = trackData.filter(track => track.id !== trackId);
             renderPlaylist(trackData);
+            showNotification("Track removed successfully", 'success');
         } else {
             const data = await response.json();
-            alert(data.message || "Failed to delete track.");
+            showNotification(data.message || "Failed to delete track.", 'error');
         }
     } catch (error) {
         console.error("Error deleting track:", error);
+        showNotification("Error deleting track", 'error');
     }
 }
 
-// In renderPlaylist function:
 function renderPlaylist(tracks) {
     const container = $('#playlist-container');
     if (!container.length) return;
 
+    if (tracks.length === 0) {
+        container.html('<p class="text-center text-secondary">No tracks in this playlist</p>');
+        return;
+    }
+
     container.html(tracks.map((track, index) => {
-        if (!track.id) return ''; // Skip tracks without ID
+        if (!track.id) return '';
 
         return `
         <div data-id="${track.id}" class="song-row row mx-0 align-items-center py-2 rounded-lg cursor-pointer">
@@ -308,15 +399,15 @@ function renderPlaylist(tracks) {
                 </div>
             </div>
             <div class="col-5 d-flex align-items-center min-w-0 pr-4">
-                <img src="${track.albumImage || './assets/default-album.png'}" alt="${track.album}" class="rounded me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                <img src="${track.albumImage || './assets/default-album.png'}" alt="${track.album || 'Album'}" class="rounded me-3" style="width: 40px; height: 40px; object-fit: cover;">
                 <div class="d-flex flex-column min-w-0">
-                    <p class="mb-0 text-white fw-semibold text-truncate">${track.name}</p>
-                    <p class="mb-0 small text-secondary">${track.artist}</p>
+                    <p class="mb-0 text-white fw-semibold text-truncate">${track.name || 'Unknown Track'}</p>
+                    <p class="mb-0 small text-secondary">${track.artist || 'Unknown Artist'}</p>
                 </div>
             </div>
-            <div class="col-4 d-none d-sm-block small text-secondary text-truncate">${track.album}</div>
+            <div class="col-4 d-none d-sm-block small text-secondary text-truncate">${track.album || 'Unknown Album'}</div>
             <div class="col-1 text-center">
-                <button class="btn btn-link text-secondary p-0 delete-track-btn" data-id="${track.id}">
+                <button class="btn btn-link text-secondary p-0 delete-track-btn" data-id="${track.id}" ${isPublicView ? 'style="display: none;"' : ''}>
                     <i class="bi bi-trash"></i>
                 </button>
             </div>
@@ -342,17 +433,34 @@ function initSpotifyPlayer(firstTrackId) {
     });
 }
 
-function loadNewTrack(trackId) {
-    if (!trackId) {
-        console.error("Error: Invalid Track ID");
-        return;
-    }
-    if (embedController) {
-        currentTrackId = trackId;
-        embedController.loadUri(`spotify:track:${trackId}`).then(() => {
-            embedController.togglePlay();
-        }).catch(error => console.error("Error loading track in Spotify player:", error));
-    } else {
-        console.error("Player controller not yet initialized.");
-    }
+function showNotification(message, type = 'success', duration = 3000) {
+    // Remove existing notification if any
+    $('#notification').remove();
+
+    // Create notification
+    $('body').append(`
+        <div id="notification" class="${type}">
+            <span id="notification-text">${message}</span>
+        </div>
+    `);
+
+    // Show with animation
+    $('#notification').css('display', 'block');
+    setTimeout(() => {
+        $('#notification').addClass('show');
+    }, 10);
+
+    // Auto hide
+    setTimeout(() => {
+        $('#notification').removeClass('show');
+        setTimeout(() => {
+            $('#notification').remove();
+        }, 300);
+    }, duration);
+
+    // Click to dismiss
+    $('#notification').on('click', function () {
+        $(this).removeClass('show');
+        setTimeout(() => $(this).remove(), 300);
+    });
 }

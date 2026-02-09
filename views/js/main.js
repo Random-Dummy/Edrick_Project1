@@ -554,25 +554,42 @@ function displayPlaylists(playlists) {
         }
         image = image || "./assets/default-album.png";
 
+        // In the card creation section, add a public/private indicator and toggle button
         const card = $(`
-            <div class="card playlist-card position-relative" style="width: 200px;">
-                <a href="playlist.html?id=${playlist._id}">
-                    <div class="card-image" style="background-image: url('${image}'); background-size: cover; background-position: center;"></div>
-                    <div class="card-info">
-                        <p class="card-title">${playlist.name}</p>
-                        <p class="card-subtitle">${playlist.tracks ? playlist.tracks.length : 0} Tracks</p>
-                    </div>
-                </a>
-                <div class="playlist-actions-bottom">
-    <button class="btn btn-sm btn-playlist-action btn-edit-playlist" title="Edit Playlist">
-        <i class="fa fa-edit"></i>
-    </button>
-    <button class="btn btn-sm btn-playlist-action btn-delete-playlist" title="Delete Playlist">
-        <i class="fa fa-trash"></i>
-    </button>
-</div>
+    <div class="card playlist-card position-relative" style="width: 200px;" data-playlist-id="${playlist._id}">
+        <a href="playlist.html?id=${playlist._id}">
+            <div class="card-image" style="background-image: url('${image}'); background-size: cover; background-position: center;"></div>
+            <div class="card-info">
+                <p class="card-title">${playlist.name}</p>
+                <p class="card-subtitle">${playlist.tracks ? playlist.tracks.length : 0} Tracks</p>
+                <p class="card-subtitle" style="font-size: 0.8em; color: ${playlist.isPublic ? '#1DB954' : '#888'};">
+                    <i class="fas ${playlist.isPublic ? 'fa-globe' : 'fa-lock'}"></i>
+                    ${playlist.isPublic ? ' Public' : ' Private'}
+                </p>
             </div>
-        `);
+        </a>
+        <div class="playlist-actions-bottom">
+            <button class="btn btn-sm btn-playlist-action btn-edit-playlist" title="Edit Playlist">
+                <i class="fa fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-playlist-action btn-toggle-public" 
+                    title="${playlist.isPublic ? 'Make Private' : 'Make Public'}"
+                    style="color: ${playlist.isPublic ? '#1DB954' : '#888'};">
+                <i class="fas ${playlist.isPublic ? 'fa-lock' : 'fa-globe'}"></i>
+            </button>
+            <button class="btn btn-sm btn-playlist-action btn-delete-playlist" title="Delete Playlist">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+    </div>
+`);
+
+        // Add toggle public click handler
+        card.find(".btn-toggle-public").on("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            togglePlaylistPublic(playlist._id, playlist.isPublic);
+        })
 
         // Edit playlist click
         card.find(".btn-edit-playlist").on("click", function (e) {
@@ -803,5 +820,42 @@ async function loadLikedSongsCount() {
     } catch (error) {
         console.error("Error loading liked songs count:", error);
         $("#liked-songs-count").text("0 Tracks");
+    }
+}
+
+// Toggle playlist public/private status
+async function togglePlaylistPublic(playlistId, isCurrentlyPublic) {
+    if (!confirm(`Are you sure you want to make this playlist ${isCurrentlyPublic ? 'private' : 'public'}?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${BASE_URL}/playlists/${playlistId}/public?token=${sessionStorage.token}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isPublic: !isCurrentlyPublic })
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showNotification(data.message, 'success');
+
+            // Update the UI if needed
+            if ($(`.playlist-card[data-playlist-id="${playlistId}"]`).length) {
+                // You could add a visual indicator here
+                console.log(`Playlist ${playlistId} is now ${data.isPublic ? 'public' : 'private'}`);
+            }
+        } else {
+            showNotification(data.message || 'Failed to update playlist status', 'error');
+        }
+    } catch (error) {
+        console.error('Error toggling playlist public status:', error);
+        showNotification('Error updating playlist status', 'error');
     }
 }
