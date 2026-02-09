@@ -30,7 +30,7 @@
     aspect-ratio: 1 / 1;
     border-radius: 4px;
     margin-bottom: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     background-color: #333;
 }
 
@@ -49,4 +49,325 @@
 .card-subtitle {
     color: #b3b3b3;
     font-size: 0.875rem;
+}
+
+/* Search highlight */
+.search-highlight {
+    background-color: #1DB954;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+/* Sort button active state */
+.sort-active {
+    position: relative;
+}
+
+.sort-active::after {
+    content: '✓';
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* Search Section Styling - matching index.html */
+.search-section {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 30px auto 40px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 14px 50px 14px 20px;
+    background-color: var(--medium-gray);
+    border: 2px solid transparent;
+    border-radius: 30px;
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: rgba(29, 185, 84, 0.05);
+    box-shadow: 0 4px 12px rgba(29, 185, 84, 0.2);
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+/* Clear button styling */
+.search-clear-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.search-clear-btn:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+}
+
+.search-clear-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* When there's text in the search input, show the clear button */
+.search-input:not(:placeholder-shown) + .search-clear-btn {
+    display: flex;
+}
+
+/* Filter controls styling - matching the theme */
+#filter-controls {
+    margin-bottom: 30px;
+    padding: 10px 0;
+}
+
+#filter-controls .btn-group {
+    background-color: var(--medium-gray);
+    border-radius: 25px;
+    padding: 5px;
+    display: inline-flex;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#filter-controls .btn {
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    color: #aaa;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+}
+
+#filter-controls .btn:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#filter-controls .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(29, 185, 84, 0.3);
+}
+
+#filter-controls .btn-primary:hover {
+    background-color: #1ed760;
+    transform: translateY(-1px);
+}
+
+/* Public playlist cards grid */
+.browse-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+/* Make the public playlist cards match index.html card styling */
+.public-playlist-card {
+    background-color: var(--medium-gray);
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.public-playlist-card:hover {
+    transform: translateY(-5px);
+    background-color: #2a2a2a;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.public-playlist-card .card-image {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.public-playlist-card:hover .card-image {
+    transform: scale(1.05);
+}
+
+.public-playlist-card .card-info {
+    padding: 20px;
+}
+
+.public-playlist-card .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.public-playlist-card .card-subtitle {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+.public-playlist-card .card-actions {
+    padding: 15px 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Floating plus button styling */
+.floating-plus-btn {
+    background-color: var(--primary-color) !important;
+    border: none;
+    color: white;
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+    z-index: 10;
+}
+
+.floating-plus-btn:hover {
+    background-color: #1ed760 !important;
+    transform: scale(1.1);
+}
+
+.floating-plus-btn i {
+    font-size: 18px;
+}
+
+/* Image overlay */
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.public-playlist-card:hover .image-overlay {
+    opacity: 1;
+}
+
+/* Action buttons styling */
+.view-playlist-btn, .clone-playlist-btn {
+    border-radius: 20px !important;
+    padding: 6px 15px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.view-playlist-btn {
+    background-color: transparent !important;
+    border: 1px solid #555 !important;
+    color: #aaa !important;
+}
+
+.view-playlist-btn:hover {
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+    background-color: rgba(29, 185, 84, 0.1) !important;
+}
+
+.clone-playlist-btn {
+    background-color: var(--primary-color) !important;
+    border: 1px solid var(--primary-color) !important;
+    color: white !important;
+}
+
+.clone-playlist-btn:hover {
+    background-color: #1ed760 !important;
+    border-color: #1ed760 !important;
+    transform: translateY(-1px);
+}
+
+/* No results and error states */
+.no-results-container, .error-container {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background-color: var(--medium-gray);
+    border-radius: 15px;
+    margin: 20px 0;
+}
+
+.no-results-container i, .error-container i {
+    font-size: 4em;
+    margin-bottom: 20px;
+}
+
+.no-results-container h3, .error-container h3 {
+    color: var(--light-gray);
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.no-results-container p, .error-container p {
+    color: #888;
+    margin-bottom: 25px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.no-results-container .btn, .error-container .btn {
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+/* Search highlight in results */
+.search-highlight {
+    background-color: rgba(29, 185, 84, 0.3);
+    color: #1DB954;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* Loading spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3em;
+}
+
+.spinner-border.text-primary {
+    color: var(--primary-color) !important;
 }

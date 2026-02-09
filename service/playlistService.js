@@ -157,17 +157,46 @@ let playlistService = {
         }
     },
 
-    async getPublicPlaylists(page = 1, limit = 20) {
+    async getPublicPlaylists(page = 1, limit = 20, search = '', sort = 'newest') {
         try {
             const skip = (page - 1) * limit;
 
-            const publicPlaylists = await playlist.find({ isPublic: true })
+            // Build query
+            let query = { isPublic: true };
+
+            // Add search functionality
+            if (search && search.trim() !== '') {
+                const searchRegex = new RegExp(search, 'i');
+                query.$or = [
+                    { name: searchRegex },
+                    { description: searchRegex },
+                    { 'creator.username': searchRegex }
+                ];
+            }
+
+            // Build sort options
+            let sortOption = {};
+            switch (sort) {
+                case 'popular':
+                    // Sort by view count or clone count
+                    sortOption = { cloneCount: -1, viewCount: -1 };
+                    break;
+                case 'cloned':
+                    sortOption = { cloneCount: -1 };
+                    break;
+                case 'newest':
+                default:
+                    sortOption = { createdAt: -1 };
+                    break;
+            }
+
+            const publicPlaylists = await playlist.find(query)
                 .populate('creator', 'username email')
-                .sort({ createdAt: -1 })
+                .sort(sortOption)
                 .skip(skip)
                 .limit(limit);
 
-            const total = await playlist.countDocuments({ isPublic: true });
+            const total = await playlist.countDocuments(query);
 
             return {
                 success: true,

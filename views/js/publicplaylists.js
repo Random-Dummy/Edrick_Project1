@@ -15,9 +15,29 @@ $(async function () {
     // Load initial playlists
     await loadPublicPlaylists();
 
-    // Search functionality
+    // Search functionality with debounce
+    let searchTimeout;
     $('#search-public').on('input', function () {
-        currentSearch = $(this).val().trim();
+        const searchValue = $(this).val().trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        // Set new timeout for debounce (500ms)
+        searchTimeout = setTimeout(() => {
+            if (currentSearch !== searchValue) {
+                currentSearch = searchValue;
+                currentPage = 1;
+                $('#public-playlists-container').empty();
+                loadPublicPlaylists();
+            }
+        }, 500);
+    });
+
+    // Clear search button
+    $('#clear-search').on('click', function() {
+        $('#search-public').val('');
+        currentSearch = '';
         currentPage = 1;
         $('#public-playlists-container').empty();
         loadPublicPlaylists();
@@ -81,9 +101,25 @@ $(async function () {
         }
     });
 
+    // Add keypress event for Enter in search
+    $('#search-public').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+            e.preventDefault();
+            $(this).trigger('input');
+        }
+    });
+
     function updateSortButtons() {
-        $('#sort-newest, #sort-popular, #sort-cloned').removeClass('btn-primary').addClass('btn-secondary');
-        $(`#sort-${currentSort}`).removeClass('btn-secondary').addClass('btn-primary');
+        $('#sort-newest, #sort-popular, #sort-cloned')
+            .removeClass('btn-primary')
+            .addClass('btn-secondary');
+        $(`#sort-${currentSort}`)
+            .removeClass('btn-secondary')
+            .addClass('btn-primary');
+        
+        // Update active sort indicator
+        $('.sort-active').removeClass('sort-active');
+        $(`#sort-${currentSort}`).addClass('sort-active');
     }
 
     async function loadPublicPlaylists() {
@@ -94,16 +130,21 @@ $(async function () {
         $('#load-more-container').hide();
 
         try {
-            // Build URL with pagination and sorting
+            // Build URL with pagination, sorting, and search
             let url = `${BASE_URL}/playlists/public?page=${currentPage}&limit=12`;
-
+            
             // Add search parameter if exists
             if (currentSearch) {
                 url += `&search=${encodeURIComponent(currentSearch)}`;
             }
+            
+            // Add sort parameter - you need to implement this in your backend
+            // Currently using 'newest', 'popular', 'cloned' as sort options
+            // You'll need to modify your backend to handle these sort options
+            url += `&sort=${currentSort}`;
 
             const response = await fetch(url);
-
+            
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
@@ -124,6 +165,24 @@ $(async function () {
                 // Show/hide no playlists message
                 if (currentPage === 1 && data.playlists.length === 0) {
                     $('#no-playlists').show();
+                    if (currentSearch) {
+                        $('#no-playlists').html(`
+                            <p style="color: var(--light-gray); font-size: 1.2em;">
+                                No public playlists found for "${currentSearch}". Try a different search.
+                            </p>
+                            <button id="clear-search-results" class="btn btn-primary mt-3">
+                                Clear Search
+                            </button>
+                        `);
+                        
+                        $('#clear-search-results').on('click', function() {
+                            $('#search-public').val('');
+                            currentSearch = '';
+                            currentPage = 1;
+                            $('#public-playlists-container').empty();
+                            loadPublicPlaylists();
+                        });
+                    }
                 } else {
                     $('#no-playlists').hide();
                 }
@@ -133,6 +192,11 @@ $(async function () {
         } catch (error) {
             console.error('Error loading public playlists:', error);
             showNotification('Error loading public playlists', 'error');
+            $('#no-playlists').show().html(`
+                <p style="color: var(--error); font-size: 1.2em;">
+                    Error loading playlists. Please try again.
+                </p>
+            `);
         } finally {
             isLoading = false;
             $('#loading').hide();
@@ -150,10 +214,27 @@ $(async function () {
             container.html(`
                 <div class="text-center" style="grid-column: 1 / -1;">
                     <p style="color: var(--light-gray); font-size: 1.2em;">
-                        No public playlists found.${currentSearch ? ' Try a different search.' : ''}
+                        ${currentSearch 
+                            ? `No public playlists found for "${currentSearch}"` 
+                            : 'No public playlists found.'}
                     </p>
+                    ${currentSearch ? `
+                        <button id="clear-search-display" class="btn btn-primary mt-3">
+                            Clear Search
+                        </button>
+                    ` : ''}
                 </div>
             `);
+            
+            if (currentSearch) {
+                $('#clear-search-display').on('click', function() {
+                    $('#search-public').val('');
+                    currentSearch = '';
+                    currentPage = 1;
+                    container.empty();
+                    loadPublicPlaylists();
+                });
+            }
             return;
         }
 
@@ -175,52 +256,65 @@ $(async function () {
             // Format clone count
             const cloneCount = playlist.cloneCount || 0;
 
-            // Alternative with hover effect:
+            // Get playlist description (truncate if too long)
+            let description = playlist.description || '';
+            if (description.length > 100) {
+                description = description.substring(0, 100) + '...';
+            }
+
+            // Highlight search term if present
+            let highlightedName = playlist.name;
+            let highlightedCreator = creatorName;
+            
+            if (currentSearch) {
+                const searchRegex = new RegExp(`(${currentSearch})`, 'gi');
+                highlightedName = playlist.name.replace(searchRegex, '<span class="search-highlight">$1</span>');
+                highlightedCreator = creatorName.replace(searchRegex, '<span class="search-highlight">$1</span>');
+            }
+
             const playlistCard = $(`
-    <div class="card public-playlist-card" data-playlist-id="${playlist._id}" style="position: relative;">
-        <div class="card-image" style="background-image: url('${image}'); position: relative;">
-            <!-- Floating "+" button on image -->
-            <button class="clone-playlist-btn floating-plus-btn" 
-                    title="Clone to Your Library"
-                    style="position: absolute; bottom: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background-color: var(--primary-color); border: none; color: white; cursor: pointer; opacity: 0; transition: opacity 0.3s; z-index: 2;">
-                <i class="fas fa-plus"></i>
-            </button>
-            <!-- Overlay on hover -->
-            <div class="image-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s;"></div>
-        </div>
-        <div class="card-info">
-            <p class="card-title">${playlist.name}</p>
-            <p class="card-subtitle">
-                <i class="fas fa-user" style="margin-right: 5px;"></i>${creatorName}
-            </p>
-            <p class="card-subtitle">
-                <i class="fas fa-music" style="margin-right: 5px;"></i>${trackText}
-            </p>
-            ${playlist.cloneCount > 0 ? `
-            <p class="card-subtitle">
-                <i class="fas fa-clone" style="margin-right: 5px;"></i>Cloned ${cloneCount} time${cloneCount !== 1 ? 's' : ''}
-            </p>
-            ` : ''}
-            ${playlist.description ? `
-            <p class="card-subtitle" style="margin-top: 8px; font-size: 0.8em; color: #888;">
-                ${playlist.description.length > 60 ?
-                        playlist.description.substring(0, 60) + '...' :
-                        playlist.description}
-            </p>
-            ` : ''}
-        </div>
-        <div class="card-actions" style="display: flex; justify-content: space-between; padding: 10px 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <button class="btn btn-sm btn-outline-primary view-playlist-btn" 
-                    title="View Playlist">
-                <i class="fas fa-eye"></i> View
-            </button>
-            <button class="btn btn-sm btn-primary clone-playlist-btn" 
-                    title="Clone to Your Library">
-                <i class="fas fa-clone"></i> Clone
-            </button>
-        </div>
-    </div>
-`);
+                <div class="card public-playlist-card" data-playlist-id="${playlist._id}" style="position: relative;">
+                    <div class="card-image" style="background-image: url('${image}'); position: relative;">
+                        <!-- Floating "+" button on image -->
+                        <button class="clone-playlist-btn floating-plus-btn" 
+                                title="Clone to Your Library"
+                                style="position: absolute; bottom: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background-color: var(--primary-color); border: none; color: white; cursor: pointer; opacity: 0; transition: opacity 0.3s; z-index: 2;">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <!-- Overlay on hover -->
+                        <div class="image-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s;"></div>
+                    </div>
+                    <div class="card-info">
+                        <p class="card-title">${highlightedName}</p>
+                        <p class="card-subtitle">
+                            <i class="fas fa-user" style="margin-right: 5px;"></i>${highlightedCreator}
+                        </p>
+                        <p class="card-subtitle">
+                            <i class="fas fa-music" style="margin-right: 5px;"></i>${trackText}
+                        </p>
+                        ${cloneCount > 0 ? `
+                        <p class="card-subtitle">
+                            <i class="fas fa-clone" style="margin-right: 5px;"></i>Cloned ${cloneCount} time${cloneCount !== 1 ? 's' : ''}
+                        </p>
+                        ` : ''}
+                        ${description ? `
+                        <p class="card-subtitle" style="margin-top: 8px; font-size: 0.8em; color: #888;">
+                            ${description}
+                        </p>
+                        ` : ''}
+                    </div>
+                    <div class="card-actions" style="display: flex; justify-content: space-between; padding: 10px 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <button class="btn btn-sm btn-outline-primary view-playlist-btn" 
+                                title="View Playlist">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-sm btn-primary clone-playlist-btn" 
+                                title="Clone to Your Library">
+                            <i class="fas fa-clone"></i> Clone
+                        </button>
+                    </div>
+                </div>
+            `);
 
             // Add hover effect to show the "+" button
             playlistCard.hover(
@@ -246,12 +340,6 @@ $(async function () {
                 window.location.href = `playlist.html?id=${playlist._id}&view=public`;
             });
 
-            // Clone playlist click
-            playlistCard.find('.clone-playlist-btn').on('click', function (e) {
-                e.stopPropagation();
-                openCloneModal(playlist._id, playlist.name);
-            });
-
             // Click on card (view playlist)
             playlistCard.on('click', function (e) {
                 if (!$(e.target).closest('.btn').length) {
@@ -261,6 +349,15 @@ $(async function () {
 
             container.append(playlistCard);
         });
+        
+        // Add fade-in animation for new cards
+        if (currentPage === 1) {
+            container.find('.public-playlist-card').hide().each(function(index) {
+                $(this).delay(index * 100).fadeIn(300);
+            });
+        } else {
+            container.find('.public-playlist-card:last-child').hide().fadeIn(300);
+        }
     }
 
     function openCloneModal(playlistId, playlistName) {
@@ -335,4 +432,7 @@ $(async function () {
             setTimeout(() => $(this).remove(), 300);
         });
     }
+    
+    // Initialize sort buttons
+    updateSortButtons();
 });
